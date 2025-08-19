@@ -1,9 +1,8 @@
 #!/usr/bin/env node
 import { config as loadDotenv } from 'dotenv'
 import path from 'path'
-import { loadEnvConfig, FileSystemStorage, runOnce } from '@hypeagent/core'
+import { loadEnvConfig, FileSystemStorage, runOnce, createUpdateDraft } from '@hypeagent/core'
 import { FileSystemPublisher } from '@hypeagent/publisher-fs'
-import type { UpdateDraft } from '@hypeagent/core'
 import { GitHubConnector } from '@hypeagent/github'
 
 async function main() {
@@ -19,16 +18,6 @@ async function main() {
   const publisher = new FileSystemPublisher()
   await publisher.init({ outDir, baseUrl })
 
-  // Minimal draft content
-  const now = new Date()
-  const draft: UpdateDraft = {
-    id: `update-${now.toISOString()}`,
-    title: 'HypeAgent Update',
-    createdAt: now.toISOString(),
-    markdown: `# HypeAgent Update\n\nRun at ${now.toISOString()} (${cfg.TIMEZONE}).`,
-    citations: [],
-  }
-
   // Connectors
   const connectors = []
   const ghToken = process.env.GITHUB_TOKEN
@@ -43,7 +32,23 @@ async function main() {
     connectors.push(gh)
   }
 
-  const res = await runOnce({ connectors, storage, publisher: { instance: publisher, draft } })
+  // Determine since based on previous state to compute "new facts" for this run
+  const prev = (await storage.readState()) ?? { facts: [] as any[] as any, lastRunAt: undefined as string | undefined }
+  const since = prev.lastRunAt ?? '1970-01-01T00:00:00.000Z'
+
+  // First, run pipeline to pull, convert, merge, and persist facts (no publish yet)
+  const res = await runOnce({ connectors, storage })
+
+  // Build the draft from the new facts (those that occurred at or after 'since')
+  const nowIso = new Date().toISOString()
+  const newFacts = (res.state.facts ?? []).filter((f) => f.occurredAt >= since)
+  const draft = createUpdateDraft(newFacts, nowIso, 'HypeAgent Update')
+
+  // Only publish if we have any new facts to report
+  let published: { id: string; url?: string } | undefined
+  if (newFacts.length > 0) {
+    published = await publisher.publish(draft, res.state)
+  }
 
   // basic output
   console.log(
@@ -53,7 +58,7 @@ async function main() {
         stateFile,
         newFacts: res.newFacts,
         lastRunAt: res.state.lastRunAt,
-        published: res.published,
+        published,
       },
       null,
       2,
