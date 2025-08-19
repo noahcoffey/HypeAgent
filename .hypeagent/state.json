@@ -1,4 +1,13 @@
 {
-  "lastRunAt": "2025-08-19T20:10:34.359Z",
-  "facts": []
+  "lastRunAt": "2025-08-19T21:32:01.372Z",
+  "facts": [
+    {
+      "id": "gh-3332002625",
+      "kind": "issue_updated",
+      "summary": "GitHub: issue_updated",
+      "occurredAt": "2025-08-19T02:11:08Z",
+      "source": "github",
+      "url": "https://github.com/noahcoffey/bizd/issues/84"
+    }
+  ]
 }
