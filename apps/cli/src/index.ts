@@ -55,16 +55,15 @@ async function main() {
   const openaiKey = process.env.OPENAI_API_KEY
   const summaryModel = process.env.AI_SUMMARY_MODEL || 'gpt-4o-mini'
   const publishAISummary = String(process.env.PUBLISH_AI_SUMMARY || '').toLowerCase() === 'true'
+  const summarySystemPrompt =
+    process.env.AI_SUMMARY_PROMPT ||
+    'You are a helpful social media manager. Write a concise, upbeat project status update from the provided context. Target: 1-3 sentences. Be clear and specific. Avoid hashtags unless essential. Include key changes (commits, issues, PRs).'
   let aiSummary: string | undefined
   let aiSummaryPublished: { id: string; url?: string } | undefined
   if (openaiKey && newFacts.length > 0) {
     const client = new OpenAI({ apiKey: openaiKey })
     const prompt = [
-      {
-        role: 'system' as const,
-        content:
-          'You are a helpful social media manager. Write a concise, upbeat project status update from the provided context. Target: 1-3 sentences. Be clear and specific. Avoid hashtags unless essential. Include key changes (commits, issues, PRs).',
-      },
+      { role: 'system' as const, content: summarySystemPrompt },
       {
         role: 'user' as const,
         content: `Timezone: ${cfg.TIMEZONE}\nNow: ${nowIso}\n\nContext markdown:\n\n${draft.markdown}`,

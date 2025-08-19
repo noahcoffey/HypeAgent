@@ -24,13 +24,25 @@ export function mapEventToFact(e: Event): Fact {
     }
   }
 
+  // Issue / PR updates
+  const payload = (e.payload ?? {}) as Record<string, unknown>
+  const isPR = Boolean(payload.isPR)
+  const number = typeof payload.number === 'number' ? payload.number : undefined
+  const title = typeof payload.title === 'string' ? payload.title : undefined
+  const state = typeof payload.state === 'string' ? payload.state : undefined
+  const repo = typeof payload.repo === 'string' ? payload.repo : undefined
+  const kindLabel = isPR ? 'PR' : 'Issue'
+  const numStr = number != null ? ` #${number}` : ''
+  const titleStr = title ? `: ${title}` : ''
+  const stateStr = state ? ` [${state}]` : ''
   return {
     id: e.id,
     kind: e.kind,
-    summary: `GitHub: ${e.kind}`,
+    summary: `${kindLabel}${numStr}${titleStr}${stateStr}`.trim(),
     occurredAt: e.occurredAt,
     source: 'github',
     url: e.url,
+    data: { number, title, state, isPR, repo },
   }
 }
 

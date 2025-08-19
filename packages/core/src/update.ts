@@ -14,7 +14,17 @@ export function formatFactsAsMarkdown(facts: Fact[]): string {
       lines.push(`- ${sha ? `\`${sha}\`` : ''} ${msg} (${date})${link}`.trim())
     } else {
       const link = f.url ? ` ([link](${f.url}))` : ''
-      lines.push(`- ${f.summary} (${f.occurredAt})${link}`)
+      const d = (f.data ?? {}) as Record<string, unknown>
+      const isPR = Boolean(d['isPR'])
+      const number = typeof d['number'] === 'number' ? (d['number'] as number) : undefined
+      const title = typeof d['title'] === 'string' ? (d['title'] as string) : undefined
+      const state = typeof d['state'] === 'string' ? (d['state'] as string) : undefined
+      const kindLabel = isPR ? 'PR' : 'Issue'
+      const numStr = number != null ? ` #${number}` : ''
+      const titleStr = title ? `: ${title}` : ''
+      const stateStr = state ? ` [${state}]` : ''
+      const line = `- ${kindLabel}${numStr}${titleStr}${stateStr} (${f.occurredAt})${link}`.trim()
+      lines.push(line)
     }
   }
   lines.push('')
