@@ -15,8 +15,9 @@ async function main() {
 
   // Filesystem publisher
   const outDir = process.env.PUBLISH_OUT_DIR || path.join(process.cwd(), 'updates')
+  const baseUrl = process.env.PUBLISH_BASE_URL
   const publisher = new FileSystemPublisher()
-  await publisher.init({ outDir })
+  await publisher.init({ outDir, baseUrl })
 
   // Minimal draft content
   const now = new Date()
