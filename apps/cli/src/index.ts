@@ -4,6 +4,7 @@ import path from 'path'
 import { loadEnvConfig, FileSystemStorage, runOnce } from '@hypeagent/core'
 import { FileSystemPublisher } from '@hypeagent/publisher-fs'
 import type { UpdateDraft } from '@hypeagent/core'
+import { GitHubConnector } from '@hypeagent/github'
 
 async function main() {
   loadDotenv()
@@ -27,7 +28,21 @@ async function main() {
     citations: [],
   }
 
-  const res = await runOnce({ connectors: [], storage, publisher: { instance: publisher, draft } })
+  // Connectors
+  const connectors = []
+  const ghToken = process.env.GITHUB_TOKEN
+  const ghReposEnv = process.env.GITHUB_REPOS
+  if (ghToken && ghReposEnv) {
+    const gh = new GitHubConnector()
+    const repos = ghReposEnv
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)
+    await gh.init({ token: ghToken, repos })
+    connectors.push(gh)
+  }
+
+  const res = await runOnce({ connectors, storage, publisher: { instance: publisher, draft } })
 
   // basic output
   console.log(

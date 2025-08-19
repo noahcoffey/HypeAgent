@@ -26,6 +26,9 @@ importers:
       '@hypeagent/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@hypeagent/github':
+        specifier: workspace:*
+        version: link:../../packages/github
       '@hypeagent/publisher-fs':
         specifier: workspace:*
         version: link:../../packages/publisher-fs
