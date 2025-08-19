@@ -7,6 +7,22 @@ export interface GitHubConnectorConfig {
 }
 
 export function mapEventToFact(e: Event): Fact {
+  if (e.kind === 'commit') {
+    const payload = (e.payload ?? {}) as Record<string, unknown>
+    const sha = String(payload.sha ?? '').slice(0, 7)
+    const message = String(payload.message ?? '').split('\n')[0]
+    const summary = sha ? `Commit ${sha}: ${message}` : `Commit: ${message}`
+    return {
+      id: e.id,
+      kind: e.kind,
+      summary,
+      occurredAt: e.occurredAt,
+      source: 'github',
+      url: e.url,
+      data: payload,
+    }
+  }
+
   return {
     id: e.id,
     kind: e.kind,
@@ -56,6 +72,25 @@ export class GitHubConnector implements Connector<GitHubConnectorConfig> {
             repo: `${owner}/${repo}`,
           },
           url: it.html_url,
+        })
+      }
+
+      // Fetch commits since
+      const commits = await this.octokit.repos.listCommits({ owner, repo, since: sinceIso, per_page: 50 })
+      for (const c of commits.data) {
+        const occurredAt = c.commit.author?.date ?? c.commit.committer?.date ?? sinceIso
+        out.push({
+          id: `gh-commit-${c.sha}`,
+          source: 'github',
+          kind: 'commit',
+          occurredAt,
+          payload: {
+            sha: c.sha,
+            message: c.commit.message,
+            author: c.commit.author?.name,
+            repo: `${owner}/${repo}`,
+          },
+          url: c.html_url,
         })
       }
     }
