@@ -1,13 +1,20 @@
 {
-  "lastRunAt": "2025-08-19T21:41:10.076Z",
+  "lastRunAt": "2025-08-19T21:50:35.624Z",
   "facts": [
     {
       "id": "gh-3332002625",
       "kind": "issue_updated",
-      "summary": "GitHub: issue_updated",
+      "summary": "Issue #84: Milestone: Multi-tenant v1 (Tracking) [open]",
       "occurredAt": "2025-08-19T02:11:08Z",
       "source": "github",
-      "url": "https://github.com/noahcoffey/bizd/issues/84"
+      "url": "https://github.com/noahcoffey/bizd/issues/84",
+      "data": {
+        "number": 84,
+        "title": "Milestone: Multi-tenant v1 (Tracking)",
+        "state": "open",
+        "isPR": false,
+        "repo": "noahcoffey/bizd"
+      }
     }
   ]
 }

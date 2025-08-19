@@ -20,7 +20,7 @@ async function main() {
   await publisher.init({ outDir, baseUrl })
 
   // Connectors
-  const connectors = []
+  const connectors: any[] = []
   const ghToken = process.env.GITHUB_TOKEN
   const ghReposEnv = process.env.GITHUB_REPOS
   if (ghToken && ghReposEnv) {
@@ -58,15 +58,46 @@ async function main() {
   const summarySystemPrompt =
     process.env.AI_SUMMARY_PROMPT ||
     'You are a helpful social media manager. Write a concise, upbeat project status update from the provided context. Target: 1-3 sentences. Be clear and specific. Avoid hashtags unless essential. Include key changes (commits, issues, PRs).'
+  const aiIncludeBodies = String(process.env.AI_INCLUDE_BODIES || 'true').toLowerCase() !== 'false'
+  const aiMaxComments = Number(process.env.AI_MAX_COMMENTS || '3')
+  const aiMaxContextChars = Number(process.env.AI_MAX_CONTEXT_CHARS || '2000')
   let aiSummary: string | undefined
   let aiSummaryPublished: { id: string; url?: string } | undefined
   if (openaiKey && newFacts.length > 0) {
     const client = new OpenAI({ apiKey: openaiKey })
+    // Try to fetch richer details for the facts from the GitHub connector (if present)
+    const ghConnector = connectors.find((c) => typeof (c as any).fetchDetails === 'function') as any
+    let detailsMd = ''
+    if (ghConnector) {
+      try {
+        const details = await ghConnector.fetchDetails(newFacts, {
+          includeBodies: aiIncludeBodies,
+          maxComments: aiMaxComments,
+          maxChars: aiMaxContextChars,
+        })
+        const lines: string[] = []
+        for (const f of newFacts) {
+          const t = details[f.id]
+          if (t) {
+            lines.push(`### ${f.summary}`)
+            lines.push('')
+            lines.push(t)
+            lines.push('')
+          }
+        }
+        if (lines.length) {
+          detailsMd = `\n\n## Details\n\n${lines.join('\n')}`
+        }
+      } catch (err) {
+        // details are optional; continue without them
+        void err
+      }
+    }
     const prompt = [
       { role: 'system' as const, content: summarySystemPrompt },
       {
         role: 'user' as const,
-        content: `Timezone: ${cfg.TIMEZONE}\nNow: ${nowIso}\n\nContext markdown:\n\n${draft.markdown}`,
+        content: `Timezone: ${cfg.TIMEZONE}\nNow: ${nowIso}\n\nContext markdown:\n\n${draft.markdown}${detailsMd}`,
       },
     ]
     try {

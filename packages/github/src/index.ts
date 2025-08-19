@@ -147,4 +147,92 @@ export class GitHubConnector implements Connector<GitHubConnectorConfig> {
   async toFacts(events: Event[]): Promise<Fact[]> {
     return events.map(mapEventToFact)
   }
+
+  // Fetch richer details for facts to provide better AI context.
+  async fetchDetails(
+    facts: Fact[],
+    opts?: { includeBodies?: boolean; maxComments?: number; maxChars?: number }
+  ): Promise<Record<string, string>> {
+    if (!this.octokit) throw new Error('GitHubConnector not initialized')
+    const includeBodies = opts?.includeBodies ?? true
+    const maxComments = opts?.maxComments ?? 3
+    const maxChars = opts?.maxChars ?? 2000
+    const trim = (s: string | undefined, n: number) => (s ? (s.length > n ? s.slice(0, n) + '…' : s) : '')
+
+    const details: Record<string, string> = {}
+    for (const f of facts) {
+      const data = (f.data ?? {}) as Record<string, unknown>
+      const repoFull = typeof data['repo'] === 'string' ? (data['repo'] as string) : undefined
+      if (!repoFull) continue
+      const [owner, repo] = repoFull.split('/')
+      if (!owner || !repo) continue
+
+      try {
+        if (f.kind === 'commit') {
+          const sha = typeof data['sha'] === 'string' ? (data['sha'] as string) : undefined
+          if (!sha) continue
+          const c = await this.withRetry(() => this.octokit!.repos.getCommit({ owner, repo, ref: sha }))
+          const message = trim(c.data.commit.message ?? '', maxChars)
+          const filesChanged = Array.isArray(c.data.files) ? c.data.files.length : undefined
+          const additions = (c.data.stats?.additions as number | undefined) ?? undefined
+          const deletions = (c.data.stats?.deletions as number | undefined) ?? undefined
+          const statsLine =
+            filesChanged != null || additions != null || deletions != null
+              ? `\nFiles changed: ${filesChanged ?? '?'} (+${additions ?? 0}/-${deletions ?? 0})`
+              : ''
+          details[f.id] = `Commit ${sha}\n${message}${statsLine}`.trim()
+        } else {
+          const isPR = Boolean(data['isPR'])
+          const number = typeof data['number'] === 'number' ? (data['number'] as number) : undefined
+          if (!number) continue
+          if (isPR) {
+            const pr = await this.withRetry(() => this.octokit!.pulls.get({ owner, repo, pull_number: number }))
+            const body = includeBodies ? trim(pr.data.body ?? '', maxChars) : ''
+            // Use issue comments API for PR discussion comments
+            const commentsResp =
+              maxComments > 0
+                ? await this.withRetry(() =>
+                    this.octokit!.issues.listComments({ owner, repo, issue_number: number, per_page: maxComments })
+                  )
+                : undefined
+            const comments = commentsResp?.data ?? []
+            const commentLines = Array.isArray(comments)
+              ? comments
+                  .slice(-maxComments)
+                  .map((c: any) => `- ${trim(c.user?.login ?? 'user', 40)}: ${trim(c.body ?? '', 300)}`)
+              : []
+            const commentsBlock = commentLines.length ? `\nRecent comments:\n${commentLines.join('\n')}` : ''
+            details[f.id] = [`PR #${number}: ${pr.data.title ?? ''}`, body && `\n${body}`, commentsBlock]
+              .filter(Boolean)
+              .join('')
+              .trim()
+          } else {
+            const issue = await this.withRetry(() => this.octokit!.issues.get({ owner, repo, issue_number: number }))
+            const body = includeBodies ? trim(issue.data.body ?? '', maxChars) : ''
+            const commentsResp =
+              maxComments > 0
+                ? await this.withRetry(() =>
+                    this.octokit!.issues.listComments({ owner, repo, issue_number: number, per_page: maxComments })
+                  )
+                : undefined
+            const comments = commentsResp?.data ?? []
+            const commentLines = Array.isArray(comments)
+              ? comments
+                  .slice(-maxComments)
+                  .map((c: any) => `- ${trim(c.user?.login ?? 'user', 40)}: ${trim(c.body ?? '', 300)}`)
+              : []
+            const commentsBlock = commentLines.length ? `\nRecent comments:\n${commentLines.join('\n')}` : ''
+            details[f.id] = [`Issue #${number}: ${issue.data.title ?? ''}`, body && `\n${body}`, commentsBlock]
+              .filter(Boolean)
+              .join('')
+              .trim()
+          }
+        }
+      } catch (err) {
+        // Swallow detail fetch errors; details are optional for AI context
+        void err
+      }
+    }
+    return details
+  }
 }
