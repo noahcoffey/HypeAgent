@@ -2,6 +2,8 @@
 import { config as loadDotenv } from 'dotenv'
 import path from 'path'
 import { loadEnvConfig, FileSystemStorage, runOnce } from '@hypeagent/core'
+import { FileSystemPublisher } from '@hypeagent/publisher-fs'
+import type { UpdateDraft } from '@hypeagent/core'
 
 async function main() {
   loadDotenv()
@@ -10,8 +12,22 @@ async function main() {
   const stateFile = process.env.STATE_FILE || path.join(process.cwd(), '.hypeagent', 'state.json')
   const storage = new FileSystemStorage(stateFile)
 
-  // No connectors or publisher wired yet; this runs a minimal pipeline pass
-  const res = await runOnce({ connectors: [], storage })
+  // Filesystem publisher
+  const outDir = process.env.PUBLISH_OUT_DIR || path.join(process.cwd(), 'updates')
+  const publisher = new FileSystemPublisher()
+  await publisher.init({ outDir })
+
+  // Minimal draft content
+  const now = new Date()
+  const draft: UpdateDraft = {
+    id: `update-${now.toISOString()}`,
+    title: 'HypeAgent Update',
+    createdAt: now.toISOString(),
+    markdown: `# HypeAgent Update\n\nRun at ${now.toISOString()} (${cfg.TIMEZONE}).`,
+    citations: [],
+  }
+
+  const res = await runOnce({ connectors: [], storage, publisher: { instance: publisher, draft } })
 
   // basic output
   console.log(
@@ -21,6 +37,7 @@ async function main() {
         stateFile,
         newFacts: res.newFacts,
         lastRunAt: res.state.lastRunAt,
+        published: res.published,
       },
       null,
       2,

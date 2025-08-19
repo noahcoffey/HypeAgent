@@ -26,6 +26,9 @@ importers:
       '@hypeagent/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@hypeagent/publisher-fs':
+        specifier: workspace:*
+        version: link:../../packages/publisher-fs
       dotenv:
         specifier: ^16.4.5
         version: 16.6.1
