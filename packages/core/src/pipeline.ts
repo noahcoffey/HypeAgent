@@ -1,5 +1,5 @@
-import { Connector, Fact, ISODateTime, ProjectState, Publisher, UpdateDraft } from './models'
-import { Storage } from './storage'
+import { Connector, Fact, ISODateTime, ProjectState, Publisher, UpdateDraft } from './models.js'
+import { Storage } from './storage.js'
 
 export interface RunOnceOptions {
   connectors: Connector<unknown>[]
