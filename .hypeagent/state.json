@@ -1,5 +1,5 @@
 {
-  "lastRunAt": "2025-08-20T19:57:46.925Z",
+  "lastRunAt": "2025-08-20T21:44:22.975Z",
   "facts": [
     {
       "id": "gh-3315537318",
@@ -11,6 +11,186 @@
       "data": {
         "number": 49,
         "title": "Fix: Profile field data types not enforced/working (number, text, date, select, etc.)",
+        "state": "closed",
+        "isPR": false,
+        "repo": "noahcoffey/bizd"
+      }
+    },
+    {
+      "id": "gh-3331998441",
+      "kind": "issue_updated",
+      "summary": "Issue #61: User roles: owner, admin, member [closed]",
+      "occurredAt": "2025-08-20T20:51:05Z",
+      "source": "github",
+      "url": "https://github.com/noahcoffey/bizd/issues/61",
+      "data": {
+        "number": 61,
+        "title": "User roles: owner, admin, member",
+        "state": "closed",
+        "isPR": false,
+        "repo": "noahcoffey/bizd"
+      }
+    },
+    {
+      "id": "gh-3331998382",
+      "kind": "issue_updated",
+      "summary": "Issue #60: Company model and path-prefix tenanting [closed]",
+      "occurredAt": "2025-08-20T20:51:05Z",
+      "source": "github",
+      "url": "https://github.com/noahcoffey/bizd/issues/60",
+      "data": {
+        "number": 60,
+        "title": "Company model and path-prefix tenanting",
+        "state": "closed",
+        "isPR": false,
+        "repo": "noahcoffey/bizd"
+      }
+    },
+    {
+      "id": "gh-3331998520",
+      "kind": "issue_updated",
+      "summary": "Issue #62: Lead and custom fields scoping to user (and tenant audit) [closed]",
+      "occurredAt": "2025-08-20T20:51:06Z",
+      "source": "github",
+      "url": "https://github.com/noahcoffey/bizd/issues/62",
+      "data": {
+        "number": 62,
+        "title": "Lead and custom fields scoping to user (and tenant audit)",
+        "state": "closed",
+        "isPR": false,
+        "repo": "noahcoffey/bizd"
+      }
+    },
+    {
+      "id": "gh-3331998644",
+      "kind": "issue_updated",
+      "summary": "Issue #63: Authorization foundation: tenant + user scoping middleware [closed]",
+      "occurredAt": "2025-08-20T20:51:08Z",
+      "source": "github",
+      "url": "https://github.com/noahcoffey/bizd/issues/63",
+      "data": {
+        "number": 63,
+        "title": "Authorization foundation: tenant + user scoping middleware",
+        "state": "closed",
+        "isPR": false,
+        "repo": "noahcoffey/bizd"
+      }
+    },
+    {
+      "id": "gh-3331999286",
+      "kind": "issue_updated",
+      "summary": "Issue #65: Login: email + password (global email) [closed]",
+      "occurredAt": "2025-08-20T20:51:09Z",
+      "source": "github",
+      "url": "https://github.com/noahcoffey/bizd/issues/65",
+      "data": {
+        "number": 65,
+        "title": "Login: email + password (global email)",
+        "state": "closed",
+        "isPR": false,
+        "repo": "noahcoffey/bizd"
+      }
+    },
+    {
+      "id": "gh-3331999529",
+      "kind": "issue_updated",
+      "summary": "Issue #68: Backend: Leads endpoints user-only access [closed]",
+      "occurredAt": "2025-08-20T20:51:12Z",
+      "source": "github",
+      "url": "https://github.com/noahcoffey/bizd/issues/68",
+      "data": {
+        "number": 68,
+        "title": "Backend: Leads endpoints user-only access",
+        "state": "closed",
+        "isPR": false,
+        "repo": "noahcoffey/bizd"
+      }
+    },
+    {
+      "id": "gh-3331999637",
+      "kind": "issue_updated",
+      "summary": "Issue #69: Backend: Profile/custom fields user vs company-level [closed]",
+      "occurredAt": "2025-08-20T20:51:15Z",
+      "source": "github",
+      "url": "https://github.com/noahcoffey/bizd/issues/69",
+      "data": {
+        "number": 69,
+        "title": "Backend: Profile/custom fields user vs company-level",
+        "state": "closed",
+        "isPR": false,
+        "repo": "noahcoffey/bizd"
+      }
+    },
+    {
+      "id": "gh-3331999834",
+      "kind": "issue_updated",
+      "summary": "Issue #71: Frontend Router: add path prefix /c/:companySlug [closed]",
+      "occurredAt": "2025-08-20T20:51:16Z",
+      "source": "github",
+      "url": "https://github.com/noahcoffey/bizd/issues/71",
+      "data": {
+        "number": 71,
+        "title": "Frontend Router: add path prefix /c/:companySlug",
+        "state": "closed",
+        "isPR": false,
+        "repo": "noahcoffey/bizd"
+      }
+    },
+    {
+      "id": "gh-3331999946",
+      "kind": "issue_updated",
+      "summary": "Issue #72: Frontend Auth: Login (email-only) [closed]",
+      "occurredAt": "2025-08-20T20:51:18Z",
+      "source": "github",
+      "url": "https://github.com/noahcoffey/bizd/issues/72",
+      "data": {
+        "number": 72,
+        "title": "Frontend Auth: Login (email-only)",
+        "state": "closed",
+        "isPR": false,
+        "repo": "noahcoffey/bizd"
+      }
+    },
+    {
+      "id": "gh-3332000287",
+      "kind": "issue_updated",
+      "summary": "Issue #76: Frontend: User/company context provider [closed]",
+      "occurredAt": "2025-08-20T20:51:20Z",
+      "source": "github",
+      "url": "https://github.com/noahcoffey/bizd/issues/76",
+      "data": {
+        "number": 76,
+        "title": "Frontend: User/company context provider",
+        "state": "closed",
+        "isPR": false,
+        "repo": "noahcoffey/bizd"
+      }
+    },
+    {
+      "id": "gh-3332000366",
+      "kind": "issue_updated",
+      "summary": "Issue #77: Frontend: Leads/Profile UI scoping [closed]",
+      "occurredAt": "2025-08-20T20:51:23Z",
+      "source": "github",
+      "url": "https://github.com/noahcoffey/bizd/issues/77",
+      "data": {
+        "number": 77,
+        "title": "Frontend: Leads/Profile UI scoping",
+        "state": "closed",
+        "isPR": false,
+        "repo": "noahcoffey/bizd"
+      }
+    },
+    {
+      "id": "gh-3332000497",
+      "kind": "issue_updated",
+      "summary": "Issue #78: Tests: tenant/user isolation and roles [closed]",
+      "occurredAt": "2025-08-20T20:51:25Z",
+      "source": "github",
+      "url": "https://github.com/noahcoffey/bizd/issues/78",
+      "data": {
+        "number": 78,
+        "title": "Tests: tenant/user isolation and roles",
         "state": "closed",
         "isPR": false,
         "repo": "noahcoffey/bizd"

@@ -82,7 +82,7 @@ GITHUB_REPOS=noahcoffey/hypeagent@main
 
 ## CLI usage
 
-Build and run a pipeline pass. If `GITHUB_TOKEN` and `GITHUB_REPOS` are set, the GitHub connector will pull updated issues/PRs since the last run and convert them to facts. The filesystem publisher writes a markdown Update draft each run.
+Build and run a pipeline pass. If `GITHUB_TOKEN` and `GITHUB_REPOS` are set, the GitHub connector will pull updated issues/PRs since the last run and convert them to facts. The CLI groups new facts into time windows (default 12 hours) and publishes one update per window, so a single run may emit multiple posts.
 
 ```bash
 pnpm run cli:build
@@ -95,12 +95,14 @@ By default, state persists to `.hypeagent/state.json` and the selected publisher
 
 - `--index-only` — with `PUBLISHER=gh-pages`, refresh the Jekyll scaffold and exit (no content publish).
 - `--no-ai` — skip AI summary generation regardless of env.
+- `--window-hours <n>` or `--window-hours=<n>` — group new facts into windows of N hours (default: `12`). Each group becomes its own update post.
 
 Example:
 
 ```bash
 pnpm run cli:run -- --index-only
 pnpm run cli:run -- --no-ai
+pnpm run cli:run -- --window-hours 6
 ```
 
 ### AI summarization (optional)
