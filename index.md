@@ -29,12 +29,21 @@ layout: null
   {% endif %}
   {% for post in items %}
     <div class="post">
-      {% assign display_title = post.title | default: post.name | default: post.id %}
-      <h2><a href="{{ post.url | relative_url }}">{{ display_title }}</a></h2>
       <p class="meta"><span class="dt" data-iso="{{ post.date | default: post.createdAt }}"></span></p>
-      {% capture raw %}{{ post.content }}{% endcapture %}
-      {% assign parts = raw | split: '---' %}
-      {% if parts.size > 2 %}{{ parts[2] }}{% else %}{{ raw }}{% endif %}
+      {% capture html %}{{ post.content }}{% endcapture %}
+      {% assign seg = html %}
+      {% assign p1 = html | split: '<!--HA-START-->' %}
+      {% if p1.size > 1 %}{% assign p2 = p1[1] | split: '<!--HA-END-->' %}{% assign seg = p2[0] %}{% endif %}
+      {# Legacy fallback: if front matter leaked, strip it #}
+      {% assign parts = seg | split: '---' %}
+      {% if parts.size > 2 %}{% assign seg = parts[2] %}{% endif %}
+      {% assign h1split = seg | split: '</h1>' %}
+      {% assign heading_text = '' %}
+      {% if h1split.size > 1 %}{% assign h1left = h1split[0] | split: '>' %}{% assign heading_text = h1left | last %}{% endif %}
+      {% assign display_title = post.title | default: post.data.title | default: heading_text | default: post.name | default: post.id %}
+      <h2><a href="{{ post.url | relative_url }}">{{ display_title }}</a></h2>
+      {% if h1split.size > 1 %}{% assign body_only = h1split[1] %}{% else %}{% assign body_only = seg %}{% endif %}
+      {% if body_only contains '<' %}{{ body_only }}{% else %}{{ body_only | markdownify }}{% endif %}
       <hr class="sep" />
       <p class="meta"><a href="{{ post.url | relative_url }}">Permalink</a></p>
     </div>
