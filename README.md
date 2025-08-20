@@ -38,24 +38,28 @@ Root scripts:
 Core reads environment via `loadEnvConfig()` with validation, and the CLI reads additional envs:
 
 - `TIMEZONE` (default: `UTC`) — must be a valid IANA timezone
+- `PUBLISHER` (default: `fs`) — select how updates are published
+  - `fs`: write markdown drafts to disk via `@hypeagent/publisher-fs`
+  - `none`: disable publishing (facts still pulled and state persisted)
 - `STATE_FILE` (optional) — path to persist state (default: `.hypeagent/state.json`)
 - `PUBLISH_OUT_DIR` (optional) — output directory for filesystem publisher (default: `updates/`)
 - `PUBLISH_BASE_URL` (optional) — base URL used to return a public URL to the published file
 - `GITHUB_TOKEN` (optional) — token for GitHub API calls (required if using the GitHub connector)
 - `GITHUB_REPOS` (optional) — comma-separated list for the GitHub connector. Supports optional branch suffix per repo:
   - Examples: `owner/repo`, `owner/repo@main`, `owner1/repo1,owner2/repo2@release`
- - `OPENAI_API_KEY` (optional) — when set, the CLI will generate a concise AI summary of each update
+- `OPENAI_API_KEY` (optional) — when set, the CLI will generate a concise AI summary of each update
 - `AI_SUMMARY_MODEL` (optional) — defaults to `gpt-4o-mini`
 - `PUBLISH_AI_SUMMARY` (optional) — when `true`, writes a separate markdown file with the AI summary next to the main update
- - `AI_SUMMARY_PROMPT` (optional) — custom system prompt to control tone/style of the AI summary
- - `AI_INCLUDE_BODIES` (optional) — when not `false`, the CLI fetches Issue/PR bodies and full commit messages to enrich the AI context (default: `true`)
- - `AI_MAX_COMMENTS` (optional) — number of recent Issue/PR comments to include in AI context (default: `3`)
- - `AI_MAX_CONTEXT_CHARS` (optional) — max characters of each Issue/PR/Commit body included in AI context (default: `2000`)
+- `AI_SUMMARY_PROMPT` (optional) — custom system prompt to control tone/style of the AI summary
+- `AI_INCLUDE_BODIES` (optional) — when not `false`, the CLI fetches Issue/PR bodies and full commit messages to enrich the AI context (default: `true`)
+- `AI_MAX_COMMENTS` (optional) — number of recent Issue/PR comments to include in AI context (default: `3`)
+- `AI_MAX_CONTEXT_CHARS` (optional) — max characters of each Issue/PR/Commit body included in AI context (default: `2000`)
 
 Example `.env`:
 
 ```
 TIMEZONE=UTC
+PUBLISHER=fs
 STATE_FILE=.hypeagent/state.json
 PUBLISH_OUT_DIR=updates
 # Optional when serving files publicly (e.g., GitHub Pages, a web server):

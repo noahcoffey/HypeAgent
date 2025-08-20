@@ -53,8 +53,11 @@ export class GitHubConnector implements Connector<GitHubConnectorConfig> {
   private async withRetry<T>(fn: () => Promise<T>, attempt = 1): Promise<T> {
     try {
       return await fn()
-    } catch (err: any) {
-      const status: number | undefined = err?.status
+    } catch (err: unknown) {
+      const status: number | undefined =
+        typeof err === 'object' && err !== null && 'status' in err
+          ? (err as { status?: number }).status
+          : undefined
       const isRateLimited = status === 403 || status === 429
       if (attempt >= 3 || !isRateLimited) throw err
       // Exponential backoff with jitter
@@ -195,11 +198,14 @@ export class GitHubConnector implements Connector<GitHubConnectorConfig> {
                     this.octokit!.issues.listComments({ owner, repo, issue_number: number, per_page: maxComments })
                   )
                 : undefined
-            const comments = commentsResp?.data ?? []
+            const comments = (commentsResp?.data ?? []) as Array<{
+              user?: { login?: string }
+              body?: string
+            }>
             const commentLines = Array.isArray(comments)
               ? comments
                   .slice(-maxComments)
-                  .map((c: any) => `- ${trim(c.user?.login ?? 'user', 40)}: ${trim(c.body ?? '', 300)}`)
+                  .map((c) => `- ${trim(c.user?.login ?? 'user', 40)}: ${trim(c.body ?? '', 300)}`)
               : []
             const commentsBlock = commentLines.length ? `\nRecent comments:\n${commentLines.join('\n')}` : ''
             details[f.id] = [`PR #${number}: ${pr.data.title ?? ''}`, body && `\n${body}`, commentsBlock]
@@ -215,11 +221,14 @@ export class GitHubConnector implements Connector<GitHubConnectorConfig> {
                     this.octokit!.issues.listComments({ owner, repo, issue_number: number, per_page: maxComments })
                   )
                 : undefined
-            const comments = commentsResp?.data ?? []
+            const comments = (commentsResp?.data ?? []) as Array<{
+              user?: { login?: string }
+              body?: string
+            }>
             const commentLines = Array.isArray(comments)
               ? comments
                   .slice(-maxComments)
-                  .map((c: any) => `- ${trim(c.user?.login ?? 'user', 40)}: ${trim(c.body ?? '', 300)}`)
+                  .map((c) => `- ${trim(c.user?.login ?? 'user', 40)}: ${trim(c.body ?? '', 300)}`)
               : []
             const commentsBlock = commentLines.length ? `\nRecent comments:\n${commentLines.join('\n')}` : ''
             details[f.id] = [`Issue #${number}: ${issue.data.title ?? ''}`, body && `\n${body}`, commentsBlock]
