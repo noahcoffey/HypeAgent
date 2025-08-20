@@ -105,6 +105,52 @@ If you set `PUBLISH_AI_SUMMARY=true`, the summary is saved as a separate markdow
 
 When using `PUBLISHER=gh-pages`, the generated site includes a minimal Jekyll scaffold. The homepage `index.md` renders only summary posts (identified via frontmatter `ha_kind: summary`) in reverse chronological order, with simple readable styling.
 
+## Publishing to GitHub Pages (PUBLISHER=gh-pages)
+
+This publisher commits update markdown files directly to your repository's `gh-pages` branch, and bootstraps a minimal Jekyll site to render them.
+
+### Setup
+
+- Create (or let the publisher create) the `gh-pages` branch in your repository.
+- In your repo settings, enable GitHub Pages to serve from the `gh-pages` branch.
+- Optionally configure a custom domain; otherwise your site will be hosted at:
+  - Project Pages: `https://<owner>.github.io/<repo>/`
+  - User/Org Pages (special repo `<owner>.github.io`): `https://<owner>.github.io/`
+
+### Required environment
+
+- `PUBLISHER=gh-pages`
+- `GHPAGES_OWNER` — repository owner (user/org)
+- `GHPAGES_REPO` — repository name
+- `GHPAGES_BRANCH` — branch to publish to (default `gh-pages`)
+- `GHPAGES_TOKEN` — token used for API writes; falls back to `GITHUB_TOKEN` if omitted
+
+Optional:
+
+- `PUBLISH_BASE_URL` — override the public base URL used for returned links. Useful for custom domains.
+  - Example (project pages): `https://<owner>.github.io/<repo>/updates`
+  - Example (custom domain): `https://example.com/updates`
+- `PUBLISH_ONLY_SUMMARY=true` — only publish the AI-generated summary (no full update). Implicitly enables `PUBLISH_AI_SUMMARY=true` unless you override it.
+
+### What gets generated
+
+- Collection files under `_${PUBLISH_OUT_DIR}/` (default `_updates/`) with YAML front matter (including `ha_kind`, timestamps, permalink) and a body segment wrapped by markers `<!--HA-START--> ... <!--HA-END-->`.
+- `index.md` styled page that lists only summary posts, newest first. It derives each card title from front matter (preferring `ha_title`/`title`) or falls back to the first H1.
+
+### Troubleshooting
+
+- Title shows a slug or body shows a duplicate H1
+  - Ensure there's a blank line after the closing front matter (`---`) before content.
+  - The publisher now emits this blank line automatically; republish if older files exist.
+- Links are missing base path
+  - Set `PUBLISH_BASE_URL` to match your Pages site if you're hosting under a custom domain.
+- Pages not updating after a push
+  - GitHub Pages may take 1–2 minutes to rebuild. Hard refresh the site.
+
+### Example workflow (scheduled and manual)
+
+See `.github/workflows/publish.yml` for a complete example. It runs the CLI on a schedule and uses `PUBLISHER=gh-pages` to push updates directly to the `gh-pages` branch.
+
 ## CI
 
 GitHub Actions workflow (`.github/workflows/ci.yml`) runs on pushes/PRs:

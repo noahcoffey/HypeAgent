@@ -1,0 +1,60 @@
+name: Publish Updates (gh-pages)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 */6 * * *' # every 6 hours
+
+permissions:
+  contents: write # required to push to gh-pages
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node from .nvmrc
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: 'pnpm'
+
+      - name: Enable Corepack and pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@9.9.0 --activate
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm -r build
+
+      - name: Derive owner/repo for gh-pages
+        run: |
+          echo "GHPAGES_OWNER=${GITHUB_REPOSITORY%/*}" >> $GITHUB_ENV
+          echo "GHPAGES_REPO=${GITHUB_REPOSITORY#*/}" >> $GITHUB_ENV
+
+      - name: Run HypeAgent CLI (publish to gh-pages)
+        env:
+          # Required for connectors and/or gh-pages writes
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Publisher selection
+          PUBLISHER: gh-pages
+          # gh-pages target (owner/repo derived above)
+          GHPAGES_OWNER: ${{ env.GHPAGES_OWNER }}
+          GHPAGES_REPO: ${{ env.GHPAGES_REPO }}
+          GHPAGES_BRANCH: gh-pages
+          # Optional: override base URL if using a custom domain
+          # PUBLISH_BASE_URL: https://example.com/updates
+          # Configure timezone for timestamps
+          TIMEZONE: UTC
+          # Configure which repos to pull facts from (optional)
+          # Example: owner/repo or owner/repo@main
+          GITHUB_REPOS: ${{ secrets.GITHUB_REPOS }}
+          # Optional AI summary
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          # PUBLISH_ONLY_SUMMARY: 'true'
+        run: pnpm run cli:run
