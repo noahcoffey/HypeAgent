@@ -2,6 +2,11 @@ name: Publish Updates (gh-pages)
 
 on:
   workflow_dispatch:
+    inputs:
+      flags:
+        description: 'Extra CLI flags (e.g., --index-only, --no-ai)'
+        required: false
+        default: ''
   schedule:
     - cron: '0 */6 * * *' # every 6 hours
 
@@ -60,9 +65,16 @@ jobs:
           # Optional AI summary
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           # PUBLISH_ONLY_SUMMARY: 'true'
+        env:
+          FLAGS: ${{ github.event.inputs.flags }}
         run: |
           # Default run (publish updates; AI summary optional via env)
-          pnpm run cli:run
+          if [ -n "${FLAGS}" ]; then
+            echo "Using flags: ${FLAGS}"
+            pnpm run cli:run -- ${FLAGS}
+          else
+            pnpm run cli:run
+          fi
           # Examples:
           # - Disable AI regardless of env:
           # pnpm run cli:run -- --no-ai
