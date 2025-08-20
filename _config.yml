@@ -1,0 +1,6 @@
+title: HypeAgent Updates
+theme: jekyll-theme-cayman
+collections:
+  updates:
+    output: true
+markdown: kramdown
