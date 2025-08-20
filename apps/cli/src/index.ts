@@ -14,14 +14,13 @@ import { FileSystemPublisher } from '@hypeagent/publisher-fs'
 import { GitHubPagesPublisher } from '@hypeagent/publisher-ghpages'
 import { GitHubConnector } from '@hypeagent/github'
 import OpenAI from 'openai'
+import { parseFlags, shouldGenerateAiSummary, shouldIndexOnly } from './flags'
 
 async function main() {
   loadDotenv()
   const cfg = loadEnvConfig()
   // Simple CLI flags
-  const argv = new Set(process.argv.slice(2))
-  const noAi = argv.has('--no-ai')
-  const indexOnly = argv.has('--index-only')
+  const { noAi, indexOnly } = parseFlags(process.argv.slice(2))
 
   const stateFile = process.env.STATE_FILE || path.join(process.cwd(), '.hypeagent', 'state.json')
   const storage = new FileSystemStorage(stateFile)
@@ -67,7 +66,7 @@ async function main() {
       process.exit(1)
     }
     publisher = ghp
-    if (indexOnly) {
+    if (shouldIndexOnly(indexOnly)) {
       console.log('Refreshed gh-pages scaffold only (--index-only).')
       return
     }
@@ -127,7 +126,7 @@ async function main() {
   let aiSummary: string | undefined
   let aiTitle: string | undefined
   let aiSummaryPublished: { id: string; url?: string } | undefined
-  if (openaiKey && newFacts.length > 0 && !noAi) {
+  if (shouldGenerateAiSummary(openaiKey, newFacts.length > 0, noAi)) {
     const client = new OpenAI({ apiKey: openaiKey })
     // Try to fetch richer details for the facts from the GitHub connector (if present)
     const ghConnector = connectors.find((c): c is GitHubConnector => c instanceof GitHubConnector)
