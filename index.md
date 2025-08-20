@@ -31,10 +31,10 @@ layout: null
     <div class="post">
       {% assign display_title = post.title | default: post.name | default: post.id %}
       <h2><a href="{{ post.url | relative_url }}">{{ display_title }}</a></h2>
-      <p class="meta"><span class="dt" data-iso="{{ post.date | date_to_xmlschema }}"></span></p>
-      {% capture body %}{{ post.content }}{% endcapture %}
-      {% assign body = body | replace: 'id:', '' | replace: 'ha_kind:', '' | replace: 'title:', '' | replace: 'createdAt:', '' | replace: 'date:', '' | replace: 'permalink:', '' %}
-      {{ body }}
+      <p class="meta"><span class="dt" data-iso="{{ post.date | default: post.createdAt }}"></span></p>
+      {% capture raw %}{{ post.content }}{% endcapture %}
+      {% assign parts = raw | split: '---' %}
+      {% if parts.size > 2 %}{{ parts[2] }}{% else %}{{ raw }}{% endif %}
       <hr class="sep" />
       <p class="meta"><a href="{{ post.url | relative_url }}">Permalink</a></p>
     </div>
@@ -59,6 +59,16 @@ layout: null
       }
       Array.prototype.slice.call(document.querySelectorAll('.dt')).forEach(function(el){
         var iso = el.getAttribute('data-iso');
+        if (!iso) {
+          var post = el.closest('.post');
+          var a = post ? post.querySelector('h2 a') : null;
+          var href = a ? (a.getAttribute('href') || '') : '';
+          // infer ISO from permalink like: update-2025-08-20T18-36-46-095Z-summary.html
+          var m = href.match(/update-([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2})-([0-9]{2})-([0-9]{2})-([0-9]{3})Z/i);
+          if (m) {
+            iso = m[1] + ':' + m[2] + ':' + m[3] + '.' + m[4] + 'Z';
+          }
+        }
         if (iso) el.textContent = rel(iso);
       });
     })();
