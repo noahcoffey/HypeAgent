@@ -14,7 +14,7 @@ import { FileSystemPublisher } from '@hypeagent/publisher-fs'
 import { GitHubPagesPublisher } from '@hypeagent/publisher-ghpages'
 import { GitHubConnector } from '@hypeagent/github'
 import OpenAI from 'openai'
-import { parseFlags, shouldGenerateAiSummary, shouldIndexOnly } from './flags'
+import { parseFlags, shouldGenerateAiSummary, shouldIndexOnly } from './flags.js'
 
 async function main() {
   loadDotenv()
