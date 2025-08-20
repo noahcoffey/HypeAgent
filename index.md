@@ -17,7 +17,16 @@ layout: null
 
 <div class="wrap">
   <h1>Latest Updates</h1>
-  {% assign items = site.updates | where: "ha_kind", "summary" | sort: 'date' | reverse %}
+  {% assign summary = site.updates | where: "ha_kind", "summary" | sort: 'date' | reverse %}
+  {% assign items = summary %}
+  {% if summary.size == 0 %}
+    {% assign coll = site.updates | sort: 'date' | reverse %}
+    {% assign legacy = site.pages | where_exp: "p", "p.url contains '/updates/'" | sort: 'date' | reverse %}
+    {% assign items = coll | concat: legacy | sort: 'date' | reverse %}
+  {% endif %}
+  {% if items.size == 0 %}
+    <p class="meta">No updates yet. Run the CLI to generate your first post.</p>
+  {% endif %}
   {% for post in items %}
     <div class="post">
       {% if post.title %}<h2><a href="{{ post.url | relative_url }}">{{ post.title }}</a></h2>{% endif %}
