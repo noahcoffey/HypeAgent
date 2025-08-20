@@ -34,7 +34,7 @@ layout: null
       {% assign seg = html %}
       {% assign p1 = html | split: '<!--HA-START-->' %}
       {% if p1.size > 1 %}{% assign p2 = p1[1] | split: '<!--HA-END-->' %}{% assign seg = p2[0] %}{% endif %}
-      {# Legacy fallback: if front matter leaked, strip it #}
+      {% comment %} Legacy fallback: if front matter leaked, strip it {% endcomment %}
       {% assign parts = seg | split: '---' %}
       {% if parts.size > 2 %}{% assign seg = parts[2] %}{% endif %}
       {% assign h1split = seg | split: '</h1>' %}
