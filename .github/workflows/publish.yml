@@ -65,7 +65,6 @@ jobs:
           # Optional AI summary
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           # PUBLISH_ONLY_SUMMARY: 'true'
-        env:
           FLAGS: ${{ github.event.inputs.flags }}
         run: |
           # Default run (publish updates; AI summary optional via env)
