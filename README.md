@@ -9,6 +9,7 @@ Minimal, extensible pipeline to pull facts from connectors (e.g. GitHub), persis
 - `packages/core`: domain models, config loader, filesystem storage, and pipeline orchestrator (`runOnce`).
 - `packages/github`: GitHub connector scaffold using Octokit.
 - `packages/publisher-fs`: filesystem publisher writing `UpdateDraft` markdown to disk.
+- `packages/publisher-ghpages`: GitHub Pages publisher committing updates directly to the `gh-pages` branch.
 - `apps/cli`: simple CLI to run a single pipeline pass.
 
 ## Quickstart
@@ -40,11 +41,18 @@ Core reads environment via `loadEnvConfig()` with validation, and the CLI reads 
 - `TIMEZONE` (default: `UTC`) — must be a valid IANA timezone
 - `PUBLISHER` (default: `fs`) — select how updates are published
   - `fs`: write markdown drafts to disk via `@hypeagent/publisher-fs`
+  - `gh-pages`: publish directly to the `gh-pages` branch via GitHub API (no PRs)
   - `none`: disable publishing (facts still pulled and state persisted)
 - `STATE_FILE` (optional) — path to persist state (default: `.hypeagent/state.json`)
 - `PUBLISH_OUT_DIR` (optional) — output directory for filesystem publisher (default: `updates/`)
 - `PUBLISH_BASE_URL` (optional) — base URL used to return a public URL to the published file
 - `GITHUB_TOKEN` (optional) — token for GitHub API calls (required if using the GitHub connector)
+- GitHub Pages publisher env (when `PUBLISHER=gh-pages`):
+  - `GHPAGES_OWNER` — repo owner (user or org)
+  - `GHPAGES_REPO` — repo name
+  - `GHPAGES_BRANCH` (default: `gh-pages`) — branch to publish to
+  - `GHPAGES_TOKEN` — GitHub token, or omit to fall back to `GITHUB_TOKEN`
+  - `PUBLISH_OUT_DIR` — path inside the branch to place files (default: `updates/`)
 - `GITHUB_REPOS` (optional) — comma-separated list for the GitHub connector. Supports optional branch suffix per repo:
   - Examples: `owner/repo`, `owner/repo@main`, `owner1/repo1,owner2/repo2@release`
 - `OPENAI_API_KEY` (optional) — when set, the CLI will generate a concise AI summary of each update
@@ -80,7 +88,7 @@ pnpm run cli:build
 pnpm run cli:run
 ```
 
-By default, state persists to `.hypeagent/state.json` and updates are written to `updates/`. Customize with env vars above.
+By default, state persists to `.hypeagent/state.json` and the selected publisher writes to `updates/`. Customize with env vars above.
 
 ### AI summarization (optional)
 

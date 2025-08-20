@@ -12,6 +12,7 @@
   "dependencies": {
     "@hypeagent/core": "workspace:*",
     "@hypeagent/github": "workspace:*",
+    "@hypeagent/publisher-ghpages": "workspace:*",
     "@hypeagent/publisher-fs": "workspace:*",
     "dotenv": "^16.4.5",
     "openai": "^4.52.0"

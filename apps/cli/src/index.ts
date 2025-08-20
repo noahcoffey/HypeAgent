@@ -11,6 +11,7 @@ import {
   type Fact,
 } from '@hypeagent/core'
 import { FileSystemPublisher } from '@hypeagent/publisher-fs'
+import { GitHubPagesPublisher } from '@hypeagent/publisher-ghpages'
 import { GitHubConnector } from '@hypeagent/github'
 import OpenAI from 'openai'
 
@@ -23,18 +24,33 @@ async function main() {
 
   // Publisher selection (env: PUBLISHER=fs|none; default fs)
   const pubKind = String(process.env.PUBLISHER || 'fs').toLowerCase()
-  const outDir = process.env.PUBLISH_OUT_DIR || path.join(process.cwd(), 'updates')
+  // For fs publisher, use an absolute path. For gh-pages, use a repo-relative path.
+  const fsOutDir = process.env.PUBLISH_OUT_DIR || path.join(process.cwd(), 'updates')
+  const ghRepoDir = process.env.PUBLISH_OUT_DIR || 'updates'
   const baseUrl = process.env.PUBLISH_BASE_URL
-  let publisher: FileSystemPublisher | undefined
+  let publisher: FileSystemPublisher | GitHubPagesPublisher | undefined
   if (pubKind === 'fs') {
     publisher = new FileSystemPublisher()
-    await publisher.init({ outDir, baseUrl })
+    await publisher.init({ outDir: fsOutDir, baseUrl })
+  } else if (pubKind === 'gh-pages') {
+    const ghOwner = process.env.GHPAGES_OWNER
+    const ghRepo = process.env.GHPAGES_REPO
+    const ghBranch = process.env.GHPAGES_BRANCH || 'gh-pages'
+    const ghToken = process.env.GHPAGES_TOKEN || process.env.GITHUB_TOKEN
+    if (!ghOwner || !ghRepo || !ghToken) {
+      throw new Error(
+        'PUBLISHER=gh-pages requires GHPAGES_OWNER, GHPAGES_REPO, and either GHPAGES_TOKEN or GITHUB_TOKEN',
+      )
+    }
+    const ghp = new GitHubPagesPublisher()
+    await ghp.init({ token: ghToken, owner: ghOwner, repo: ghRepo, branch: ghBranch, dir: ghRepoDir, baseUrl })
+    publisher = ghp
   } else if (pubKind === 'none') {
     publisher = undefined
   } else {
     console.warn(`Unknown PUBLISHER="${pubKind}", defaulting to "fs"`)
     publisher = new FileSystemPublisher()
-    await publisher.init({ outDir, baseUrl })
+    await publisher.init({ outDir: fsOutDir, baseUrl })
   }
 
   // Connectors
