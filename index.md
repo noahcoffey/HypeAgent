@@ -29,11 +29,38 @@ layout: null
   {% endif %}
   {% for post in items %}
     <div class="post">
-      {% if post.title %}<h2><a href="{{ post.url | relative_url }}">{{ post.title }}</a></h2>{% endif %}
-      <p class="meta">{{ post.date | date: "%b %-d, %Y" }}</p>
-      {{ post.content }}
+      {% assign display_title = post.title | default: post.name | default: post.id %}
+      <h2><a href="{{ post.url | relative_url }}">{{ display_title }}</a></h2>
+      <p class="meta"><span class="dt" data-iso="{{ post.date | date_to_xmlschema }}"></span></p>
+      {% capture body %}{{ post.content }}{% endcapture %}
+      {% assign body = body | replace: 'id:', '' | replace: 'ha_kind:', '' | replace: 'title:', '' | replace: 'createdAt:', '' | replace: 'date:', '' | replace: 'permalink:', '' %}
+      {{ body }}
       <hr class="sep" />
       <p class="meta"><a href="{{ post.url | relative_url }}">Permalink</a></p>
     </div>
   {% endfor %}
+  <script>
+    (function(){
+      function fmt(iso){
+        var dt = new Date(iso);
+        var opts = { month: 'numeric', day: 'numeric', year: '2-digit', hour: 'numeric', minute: '2-digit' };
+        try { return dt.toLocaleString(undefined, opts); } catch(e) { return dt.toISOString(); }
+      }
+      function rel(iso){
+        var now = new Date();
+        var then = new Date(iso);
+        var diffMs = now - then;
+        var mins = Math.round(diffMs/60000);
+        if (mins < 60) return mins + ' minutes ago (' + fmt(iso) + ')';
+        var hours = Math.round(mins/60);
+        if (hours < 24) return hours + ' hours ago (' + fmt(iso) + ')';
+        var days = Math.round(hours/24);
+        return days + ' days ago (' + fmt(iso) + ')';
+      }
+      Array.prototype.slice.call(document.querySelectorAll('.dt')).forEach(function(el){
+        var iso = el.getAttribute('data-iso');
+        if (iso) el.textContent = rel(iso);
+      });
+    })();
+  </script>
 </div>
