@@ -37,12 +37,22 @@ layout: null
       {% comment %} Legacy fallback: if front matter leaked, strip it {% endcomment %}
       {% assign parts = seg | split: '---' %}
       {% if parts.size > 2 %}{% assign seg = parts[2] %}{% endif %}
-      {% assign h1split = seg | split: '</h1>' %}
       {% assign heading_text = '' %}
-      {% if h1split.size > 1 %}{% assign h1left = h1split[0] | split: '>' %}{% assign heading_text = h1left | last %}{% endif %}
-      {% assign display_title = post.title | default: post.data.title | default: heading_text | default: post.name | default: post.id %}
+      {% assign body_only = seg %}
+      {% assign h1split = seg | split: '</h1>' %}
+      {% if h1split.size > 1 %}{% assign h1left = h1split[0] | split: '>' %}{% assign heading_text = h1left | last %}{% assign body_only = h1split[1] %}{% endif %}
+      {% if heading_text == '' %}
+        {% assign lines = seg | split: '
+' %}
+        {% if lines.size > 0 and (lines[0] | slice: 0, 2) == '# ' %}
+          {% assign heading_text = lines[0] | remove_first: '# ' | strip %}
+          {% assign body_only = seg | remove_first: lines[0] %}
+          {% assign body_only = body_only | replace_first: '
+', '' %}
+        {% endif %}
+      {% endif %}
+      {% assign display_title = post.ha_title | default: post.title | default: post.data.title | default: post["title"] | default: heading_text | strip | default: post.name | default: post.id %}
       <h2><a href="{{ post.url | relative_url }}">{{ display_title }}</a></h2>
-      {% if h1split.size > 1 %}{% assign body_only = h1split[1] %}{% else %}{% assign body_only = seg %}{% endif %}
       {% if body_only contains '<' %}{{ body_only }}{% else %}{{ body_only | markdownify }}{% endif %}
       <hr class="sep" />
       <p class="meta"><a href="{{ post.url | relative_url }}">Permalink</a></p>
