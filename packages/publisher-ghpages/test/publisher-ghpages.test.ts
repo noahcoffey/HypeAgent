@@ -153,4 +153,88 @@ describe('@hypeagent/publisher-ghpages', () => {
     expect(index).toContain('<!--HA-START-->')
     expect(index).toContain('<!--HA-END-->')
   })
+
+  describe('env validation and error mapping', () => {
+    it('fails init with friendly message when required config is missing', async () => {
+      const pub = new GitHubPagesPublisher()
+      await expect(pub.init({ token: '', owner: 'o', repo: 'r' } as unknown as { token: string; owner: string; repo: string })).rejects.toThrow(
+        /missing token/i,
+      )
+      await expect(pub.init({ token: 't', owner: '', repo: 'r' } as unknown as { token: string; owner: string; repo: string })).rejects.toThrow(
+        /missing owner/i,
+      )
+      await expect(pub.init({ token: 't', owner: 'o', repo: '' } as unknown as { token: string; owner: string; repo: string })).rejects.toThrow(
+        /missing repo/i,
+      )
+    })
+
+    it('maps Octokit write errors to actionable messages (403, 409)', async () => {
+      const pub = new GitHubPagesPublisher()
+      // Inject internals and mocks to avoid network
+      Object.assign(pub as unknown as { owner: string; repo: string; branch: string; dir: string }, {
+        owner: 'o', repo: 'r', branch: 'gh-pages', dir: 'updates',
+      })
+
+      // Mock getContent 404 (not present) and write 403
+      const e404 = Object.assign(new Error('Not Found'), { status: 404 })
+      const e403 = Object.assign(new Error('Forbidden'), { status: 403 })
+      type MockRepos = {
+        getContent: () => Promise<never>
+        createOrUpdateFileContents: () => Promise<never>
+      }
+      type MockOctokit = { repos: MockRepos }
+      Object.assign(pub as unknown as { octokit: MockOctokit }, {
+        octokit: {
+          repos: {
+            getContent: async (): Promise<never> => { throw e404 },
+            createOrUpdateFileContents: async (): Promise<never> => { throw e403 },
+          },
+        },
+      })
+
+      await expect(
+        pub.publish(
+          { id: 'x', createdAt: '2020-01-01T00:00:00Z', markdown: 'm', citations: [] },
+          { facts: [] } as ProjectState,
+        ),
+      ).rejects.toThrow(/forbidden|permissions:\s*contents:\s*write/i)
+
+      // Now simulate conflict on write
+      const e409 = Object.assign(new Error('Conflict'), { status: 409 })
+      Object.assign(pub as unknown as { octokit: MockOctokit }, {
+        octokit: {
+          repos: {
+            getContent: async (): Promise<never> => { throw e404 },
+            createOrUpdateFileContents: async (): Promise<never> => { throw e409 },
+          },
+        },
+      })
+      await expect(
+        pub.publish(
+          { id: 'y', createdAt: '2020-01-01T00:00:00Z', markdown: 'n', citations: [] },
+          { facts: [] } as ProjectState,
+        ),
+      ).rejects.toThrow(/conflict/i)
+    })
+
+    it('maps ensureFile read errors (non-404) to actionable messages', async () => {
+      const pub = new GitHubPagesPublisher()
+      Object.assign(pub as unknown as { owner: string; repo: string; branch: string }, { owner: 'o', repo: 'r', branch: 'gh-pages' })
+      const e500 = Object.assign(new Error('Internal Error'), { status: 500 })
+      type MockRepos2 = { getContent: () => Promise<never>; createOrUpdateFileContents: () => Promise<unknown> }
+      type MockOctokit2 = { repos: MockRepos2 }
+      Object.assign(pub as unknown as { octokit: MockOctokit2 }, {
+        octokit: {
+          repos: {
+            getContent: async (): Promise<never> => { throw e500 },
+            createOrUpdateFileContents: async (): Promise<unknown> => ({}),
+          },
+        },
+      })
+      // Access private method via type cast for testing
+      await expect((pub as unknown as { ensureFile: (p: string, c: string) => Promise<void> }).ensureFile('index.md', 'x')).rejects.toThrow(
+        /http\s*500/i,
+      )
+    })
+  })
 })

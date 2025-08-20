@@ -18,6 +18,10 @@ import OpenAI from 'openai'
 async function main() {
   loadDotenv()
   const cfg = loadEnvConfig()
+  // Simple CLI flags
+  const argv = new Set(process.argv.slice(2))
+  const noAi = argv.has('--no-ai')
+  const indexOnly = argv.has('--index-only')
 
   const stateFile = process.env.STATE_FILE || path.join(process.cwd(), '.hypeagent', 'state.json')
   const storage = new FileSystemStorage(stateFile)
@@ -38,13 +42,35 @@ async function main() {
     const ghBranch = process.env.GHPAGES_BRANCH || 'gh-pages'
     const ghToken = process.env.GHPAGES_TOKEN || process.env.GITHUB_TOKEN
     if (!ghOwner || !ghRepo || !ghToken) {
-      throw new Error(
-        'PUBLISHER=gh-pages requires GHPAGES_OWNER, GHPAGES_REPO, and either GHPAGES_TOKEN or GITHUB_TOKEN',
+      const missing: string[] = []
+      if (!ghOwner) missing.push('GHPAGES_OWNER')
+      if (!ghRepo) missing.push('GHPAGES_REPO')
+      if (!ghToken) missing.push('GHPAGES_TOKEN or GITHUB_TOKEN')
+      console.error(
+        `PUBLISHER=gh-pages is missing required env var(s): ${missing.join(', ')}\n` +
+        `Set these in your shell or GitHub Actions secrets. Example: GHPAGES_OWNER=your-user, GHPAGES_REPO=your-repo.`,
       )
+      process.exit(1)
     }
     const ghp = new GitHubPagesPublisher()
-    await ghp.init({ token: ghToken, owner: ghOwner, repo: ghRepo, branch: ghBranch, dir: ghRepoDir, baseUrl })
+    try {
+      await ghp.init({ token: ghToken, owner: ghOwner, repo: ghRepo, branch: ghBranch, dir: ghRepoDir, baseUrl })
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
+      console.error(
+        'GitHub Pages publisher initialization failed.\n' +
+          msg +
+          (process.env.GITHUB_ACTIONS
+            ? '\nIf running in Actions, ensure workflow permissions include: permissions:\n  contents: write'
+            : ''),
+      )
+      process.exit(1)
+    }
     publisher = ghp
+    if (indexOnly) {
+      console.log('Refreshed gh-pages scaffold only (--index-only).')
+      return
+    }
   } else if (pubKind === 'none') {
     publisher = undefined
   } else {
@@ -101,7 +127,7 @@ async function main() {
   let aiSummary: string | undefined
   let aiTitle: string | undefined
   let aiSummaryPublished: { id: string; url?: string } | undefined
-  if (openaiKey && newFacts.length > 0) {
+  if (openaiKey && newFacts.length > 0 && !noAi) {
     const client = new OpenAI({ apiKey: openaiKey })
     // Try to fetch richer details for the facts from the GitHub connector (if present)
     const ghConnector = connectors.find((c): c is GitHubConnector => c instanceof GitHubConnector)

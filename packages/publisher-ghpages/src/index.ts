@@ -19,11 +19,27 @@ export class GitHubPagesPublisher implements Publisher<GhPagesPublisherConfig> {
   private baseUrl?: string
 
   async init(config: GhPagesPublisherConfig): Promise<void> {
+    // Basic validation for clear, actionable errors
+    if (!config?.token) {
+      throw new Error('GitHub Pages publisher: missing token. Set GHPAGES_TOKEN or GITHUB_TOKEN when PUBLISHER=gh-pages')
+    }
+    if (!config?.owner) {
+      throw new Error('GitHub Pages publisher: missing owner. Set GHPAGES_OWNER when PUBLISHER=gh-pages')
+    }
+    if (!config?.repo) {
+      throw new Error('GitHub Pages publisher: missing repo. Set GHPAGES_REPO when PUBLISHER=gh-pages')
+    }
+    const branch = config.branch || 'gh-pages'
+    if (!branch.trim()) {
+      throw new Error('GitHub Pages publisher: invalid branch. Set GHPAGES_BRANCH (e.g., gh-pages)')
+    }
+
     this.octokit = new Octokit({ auth: config.token })
     this.owner = config.owner
     this.repo = config.repo
-    this.branch = config.branch || 'gh-pages'
-    this.dir = config.dir || 'updates'
+    this.branch = branch
+    // Normalize dir: remove any leading '_' or '/'
+    this.dir = (config.dir || 'updates').replace(/^[_/]+/, '')
     this.baseUrl = config.baseUrl
 
     await this.ensureBranchExists()
@@ -41,11 +57,15 @@ export class GitHubPagesPublisher implements Publisher<GhPagesPublisherConfig> {
     }
 
     // Create branch from default branch's latest commit
-    const repoInfo = await this.octokit.repos.get({ owner: this.owner, repo: this.repo })
-    const defaultBranch = repoInfo.data.default_branch
-    const baseRef = await this.octokit.git.getRef({ owner: this.owner, repo: this.repo, ref: `heads/${defaultBranch}` })
-    const sha = baseRef.data.object.sha
-    await this.octokit.git.createRef({ owner: this.owner, repo: this.repo, ref: `refs/heads/${this.branch}`, sha })
+    try {
+      const repoInfo = await this.octokit.repos.get({ owner: this.owner, repo: this.repo })
+      const defaultBranch = repoInfo.data.default_branch
+      const baseRef = await this.octokit.git.getRef({ owner: this.owner, repo: this.repo, ref: `heads/${defaultBranch}` })
+      const sha = baseRef.data.object.sha
+      await this.octokit.git.createRef({ owner: this.owner, repo: this.repo, ref: `refs/heads/${this.branch}`, sha })
+    } catch (err: unknown) {
+      this.mapAndThrow(err, `create branch '${this.branch}' in ${this.owner}/${this.repo}`)
+    }
   }
 
   private safeId(id: string): string {
@@ -105,18 +125,22 @@ export class GitHubPagesPublisher implements Publisher<GhPagesPublisherConfig> {
       }
     } catch (err: unknown) {
       const status = typeof err === 'object' && err && 'status' in err ? (err as { status?: number }).status : undefined
-      if (status !== 404) throw err
+      if (status !== 404) this.mapAndThrow(err, `read existing file ${path} on ${this.branch}`)
     }
 
-    await this.octokit.repos.createOrUpdateFileContents({
-      owner: this.owner,
-      repo: this.repo,
-      path,
-      branch: this.branch,
-      message: `HypeAgent: publish update ${update.id}`,
-      content: contentB64,
-      ...(sha ? { sha } : {}),
-    })
+    try {
+      await this.octokit.repos.createOrUpdateFileContents({
+        owner: this.owner,
+        repo: this.repo,
+        path,
+        branch: this.branch,
+        message: `HypeAgent: publish update ${update.id}`,
+        content: contentB64,
+        ...(sha ? { sha } : {}),
+      })
+    } catch (err: unknown) {
+      this.mapAndThrow(err, `write file ${path} on ${this.branch}`)
+    }
 
     const url = this.derivePublicUrl(`${safeId}.md`)
     return { id: update.id, url }
@@ -242,20 +266,45 @@ export class GitHubPagesPublisher implements Publisher<GhPagesPublisherConfig> {
       }
     } catch (err: unknown) {
       const status = typeof err === 'object' && err && 'status' in err ? (err as { status?: number }).status : undefined
-      if (status !== 404) throw err
+      if (status !== 404) this.mapAndThrow(err, `read existing file ${path} on ${this.branch}`)
     }
 
     const newB64 = Buffer.from(content, 'utf8').toString('base64')
     if (sha && existingB64 === newB64) return
 
-    await this.octokit.repos.createOrUpdateFileContents({
-      owner: this.owner,
-      repo: this.repo,
-      path,
-      branch: this.branch,
-      message: sha ? `HypeAgent: update ${path}` : `HypeAgent: bootstrap ${path}`,
-      content: newB64,
-      ...(sha ? { sha } : {}),
-    })
+    try {
+      await this.octokit.repos.createOrUpdateFileContents({
+        owner: this.owner,
+        repo: this.repo,
+        path,
+        branch: this.branch,
+        message: sha ? `HypeAgent: update ${path}` : `HypeAgent: bootstrap ${path}`,
+        content: newB64,
+        ...(sha ? { sha } : {}),
+      })
+    } catch (err: unknown) {
+      this.mapAndThrow(err, `write file ${path} on ${this.branch}`)
+    }
+  }
+
+  private mapAndThrow(err: unknown, doing: string): never {
+    const status = typeof err === 'object' && err && 'status' in err ? (err as { status?: number }).status : undefined
+    const msg = typeof err === 'object' && err && 'message' in err ? String((err as { message?: string }).message) : ''
+    let help = `Failed to ${doing} in ${this.owner}/${this.repo}.`
+    if (status === 401) {
+      help += ' Unauthorized token. Verify GHPAGES_TOKEN/GITHUB_TOKEN value.'
+    } else if (status === 403) {
+      help += ' Forbidden. Ensure the token has repo contents: write permission and access to this repository. In GitHub Actions, set permissions: contents: write.'
+    } else if (status === 404) {
+      help += ' Not found. Verify repository/branch exists and the token can access it.'
+    } else if (status === 409) {
+      help += ' Conflict when updating the file/branch. Re-run to retry or ensure no concurrent updates are happening.'
+    } else if (status === 422) {
+      help += ' Unprocessable entity. Branch protection or invalid parameters may be preventing writes.'
+    } else if (status) {
+      help += ` HTTP ${status}.`
+    }
+    if (msg) help += ` Original error: ${msg}`
+    throw new Error(help)
   }
 }
