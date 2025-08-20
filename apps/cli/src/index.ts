@@ -81,14 +81,17 @@ async function main() {
 
   // Only publish if we have any new facts to report
   let published: { id: string; url?: string } | undefined
-  if (newFacts.length > 0 && publisher) {
+  const publishOnlySummary = String(process.env.PUBLISH_ONLY_SUMMARY || '').toLowerCase() === 'true'
+  if (newFacts.length > 0 && publisher && !publishOnlySummary) {
     published = await publisher.publish(draft, res.state)
   }
 
   // Optional: generate an AI summary of the update content for social posting
   const openaiKey = process.env.OPENAI_API_KEY
   const summaryModel = process.env.AI_SUMMARY_MODEL || 'gpt-4o-mini'
-  const publishAISummary = String(process.env.PUBLISH_AI_SUMMARY || '').toLowerCase() === 'true'
+  const publishAISummary = String(
+    process.env.PUBLISH_AI_SUMMARY ?? (publishOnlySummary ? 'true' : ''),
+  ).toLowerCase() === 'true'
   const summarySystemPrompt =
     process.env.AI_SUMMARY_PROMPT ||
     'You are a helpful social media manager. Write a concise, upbeat project status update from the provided context. Target: 1-3 sentences. Be clear and specific. Avoid hashtags unless essential. Include key changes (commits, issues, PRs).'
@@ -96,6 +99,7 @@ async function main() {
   const aiMaxComments = Number(process.env.AI_MAX_COMMENTS || '3')
   const aiMaxContextChars = Number(process.env.AI_MAX_CONTEXT_CHARS || '2000')
   let aiSummary: string | undefined
+  let aiTitle: string | undefined
   let aiSummaryPublished: { id: string; url?: string } | undefined
   if (openaiKey && newFacts.length > 0) {
     const client = new OpenAI({ apiKey: openaiKey })
@@ -128,7 +132,7 @@ async function main() {
       }
     }
     const prompt = [
-      { role: 'system' as const, content: summarySystemPrompt },
+      { role: 'system' as const, content: `${summarySystemPrompt}\n\nRespond strictly as minified JSON with keys: title (short, human, catchy), summary (1-3 sentences). No markdown, no code fences.` },
       {
         role: 'user' as const,
         content: `Timezone: ${cfg.TIMEZONE}\nNow: ${nowIso}\n\nContext markdown:\n\n${draft.markdown}${detailsMd}`,
@@ -141,13 +145,25 @@ async function main() {
         max_tokens: 200,
         messages: prompt,
       })
-      aiSummary = resp.choices?.[0]?.message?.content?.trim() || undefined
+      const raw = resp.choices?.[0]?.message?.content?.trim() || ''
+      try {
+        // try to parse JSON from the response
+        const start = raw.indexOf('{')
+        const end = raw.lastIndexOf('}')
+        const jsonStr = start >= 0 && end >= start ? raw.slice(start, end + 1) : raw
+        const parsed = JSON.parse(jsonStr) as { title?: string; summary?: string }
+        aiTitle = parsed.title?.trim() || undefined
+        aiSummary = parsed.summary?.trim() || undefined
+      } catch {
+        aiSummary = raw || undefined
+        aiTitle = undefined
+      }
       if (aiSummary && publishAISummary && publisher) {
         const summaryDraft = {
           id: `${draft.id}-summary`,
-          title: `${draft.title ?? 'Update'} — AI Summary`,
+          title: aiTitle || 'Project Update',
           createdAt: nowIso,
-          markdown: `# AI Summary\n\n${aiSummary}\n`,
+          markdown: `${aiSummary}\n`,
           citations: [],
         }
         aiSummaryPublished = await publisher.publish(summaryDraft, res.state)

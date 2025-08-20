@@ -46,6 +46,7 @@ Core reads environment via `loadEnvConfig()` with validation, and the CLI reads 
 - `STATE_FILE` (optional) — path to persist state (default: `.hypeagent/state.json`)
 - `PUBLISH_OUT_DIR` (optional) — output directory for filesystem publisher (default: `updates/`)
 - `PUBLISH_BASE_URL` (optional) — base URL used to return a public URL to the published file
+- `PUBLISH_ONLY_SUMMARY` (optional) — when `true`, skip publishing the full update and only publish the AI-generated summary (also implies `PUBLISH_AI_SUMMARY=true` unless explicitly overridden)
 - `GITHUB_TOKEN` (optional) — token for GitHub API calls (required if using the GitHub connector)
 - GitHub Pages publisher env (when `PUBLISHER=gh-pages`):
   - `GHPAGES_OWNER` — repo owner (user or org)
@@ -57,7 +58,7 @@ Core reads environment via `loadEnvConfig()` with validation, and the CLI reads 
   - Examples: `owner/repo`, `owner/repo@main`, `owner1/repo1,owner2/repo2@release`
 - `OPENAI_API_KEY` (optional) — when set, the CLI will generate a concise AI summary of each update
 - `AI_SUMMARY_MODEL` (optional) — defaults to `gpt-4o-mini`
-- `PUBLISH_AI_SUMMARY` (optional) — when `true`, writes a separate markdown file with the AI summary next to the main update
+- `PUBLISH_AI_SUMMARY` (optional) — when `true`, writes a separate markdown file with the AI summary next to the main update; automatically enabled when `PUBLISH_ONLY_SUMMARY=true`
 - `AI_SUMMARY_PROMPT` (optional) — custom system prompt to control tone/style of the AI summary
 - `AI_INCLUDE_BODIES` (optional) — when not `false`, the CLI fetches Issue/PR bodies and full commit messages to enrich the AI context (default: `true`)
 - `AI_MAX_COMMENTS` (optional) — number of recent Issue/PR comments to include in AI context (default: `3`)
@@ -100,7 +101,9 @@ For better summaries, the CLI includes a brief markdown list of new facts and, w
 - `AI_MAX_COMMENTS` — include up to N recent comments per Issue/PR
 - `AI_MAX_CONTEXT_CHARS` — truncate long bodies to this length
 
-If you set `PUBLISH_AI_SUMMARY=true`, the summary is saved as a separate markdown file alongside the main update (with an id suffix `-summary`). The CLI output also includes the `aiSummary` text and the published URL (when `PUBLISH_BASE_URL` is configured).
+If you set `PUBLISH_AI_SUMMARY=true`, the summary is saved as a separate markdown file alongside the main update (with an id suffix `-summary`). If `PUBLISH_ONLY_SUMMARY=true`, only this summary post is published and the full update is skipped. The model response is expected to be strict minified JSON like `{ "title": "...", "summary": "..." }`; the CLI parses these and publishes a clean summary without extra headers. The CLI output also includes the `aiSummary` text and the published URL (when `PUBLISH_BASE_URL` is configured).
+
+When using `PUBLISHER=gh-pages`, the generated site includes a minimal Jekyll scaffold. The homepage `index.md` renders only summary posts (identified via frontmatter `ha_kind: summary`) in reverse chronological order, with simple readable styling.
 
 ## CI
 

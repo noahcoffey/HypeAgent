@@ -1,17 +1,17 @@
 {
-  "lastRunAt": "2025-08-19T21:50:35.624Z",
+  "lastRunAt": "2025-08-20T19:57:46.925Z",
   "facts": [
     {
-      "id": "gh-3332002625",
+      "id": "gh-3315537318",
       "kind": "issue_updated",
-      "summary": "Issue #84: Milestone: Multi-tenant v1 (Tracking) [open]",
-      "occurredAt": "2025-08-19T02:11:08Z",
+      "summary": "Issue #49: Fix: Profile field data types not enforced/working (number, text, date, select, etc.) [closed]",
+      "occurredAt": "2025-08-20T18:11:17Z",
       "source": "github",
-      "url": "https://github.com/noahcoffey/bizd/issues/84",
+      "url": "https://github.com/noahcoffey/bizd/issues/49",
       "data": {
-        "number": 84,
-        "title": "Milestone: Multi-tenant v1 (Tracking)",
-        "state": "open",
+        "number": 49,
+        "title": "Fix: Profile field data types not enforced/working (number, text, date, select, etc.)",
+        "state": "closed",
         "isPR": false,
         "repo": "noahcoffey/bizd"
       }

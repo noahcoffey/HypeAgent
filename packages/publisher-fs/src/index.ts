@@ -28,6 +28,7 @@ export class FileSystemPublisher implements Publisher<FsPublisherConfig> {
       `id: ${update.id}`,
       update.title ? `title: ${update.title}` : undefined,
       `createdAt: ${update.createdAt}`,
+      `date: ${update.createdAt}`,
       update.citations?.length ? `citations: ${update.citations.length}` : undefined,
       '---',
       '',
