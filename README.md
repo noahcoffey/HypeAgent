@@ -91,6 +91,18 @@ pnpm run cli:run
 
 By default, state persists to `.hypeagent/state.json` and the selected publisher writes to `updates/`. Customize with env vars above.
 
+### CLI flags
+
+- `--index-only` — with `PUBLISHER=gh-pages`, refresh the Jekyll scaffold and exit (no content publish).
+- `--no-ai` — skip AI summary generation regardless of env.
+
+Example:
+
+```bash
+pnpm run cli:run -- --index-only
+pnpm run cli:run -- --no-ai
+```
+
 ### AI summarization (optional)
 
 If `OPENAI_API_KEY` is set, the CLI will send the newly generated update content to the OpenAI API to produce a concise, social-media-ready summary (1–3 sentences). You can override the model via `AI_SUMMARY_MODEL` (default: `gpt-4o-mini`). Customize the system prompt with `AI_SUMMARY_PROMPT`.
@@ -146,6 +158,15 @@ Optional:
   - Set `PUBLISH_BASE_URL` to match your Pages site if you're hosting under a custom domain.
 - Pages not updating after a push
   - GitHub Pages may take 1–2 minutes to rebuild. Hard refresh the site.
+
+- Permissions error when writing to gh-pages (403)
+  - In Actions, ensure your workflow has `permissions: contents: write` at the top-level. If running locally, use a PAT with repo write access.
+- Branch or file not found (404)
+  - Ensure the repository and target branch exist or allow the publisher to create the branch. Verify the token can access the repo.
+- Update conflict (409)
+  - Re-run the workflow. Avoid concurrent runs that write to the same file/branch.
+- Missing envs (init fails with a clear message)
+  - Set `GHPAGES_OWNER`, `GHPAGES_REPO`, and `GHPAGES_TOKEN` (or `GITHUB_TOKEN`) when `PUBLISHER=gh-pages`.
 
 ### Example workflow (scheduled and manual)
 

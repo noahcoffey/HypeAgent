@@ -60,4 +60,11 @@ jobs:
           # Optional AI summary
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           # PUBLISH_ONLY_SUMMARY: 'true'
-        run: pnpm run cli:run
+        run: |
+          # Default run (publish updates; AI summary optional via env)
+          pnpm run cli:run
+          # Examples:
+          # - Disable AI regardless of env:
+          # pnpm run cli:run -- --no-ai
+          # - Refresh scaffold only (no content publish):
+          # pnpm run cli:run -- --index-only
