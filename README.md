@@ -33,6 +33,7 @@ Root scripts:
 - `pnpm -r test` — Vitest across workspaces
 - `pnpm run cli:build` — build all, including the CLI
 - `pnpm run cli:run` — run the CLI entrypoint
+- `pnpm run cli:watch` — run the CLI in watch mode (re-runs periodically)
 
 ## Configuration
 
@@ -98,6 +99,9 @@ By default, state persists to `.hypeagent/state.json` and the selected publisher
 - `--no-ai` — skip AI summary generation regardless of env.
 - `--window-hours <n>` or `--window-hours=<n>` — group new facts into windows of N hours (default: `12`). Each group becomes its own update post.
   - Env fallback: set `WINDOW_HOURS=<n>` to avoid passing a flag (e.g., in CI).
+- `--watch` — keep the process running and re-run on an interval.
+- `--interval-minutes <n>` — set the watch interval in minutes.
+  - Env fallback: set `RUN_INTERVAL_MINUTES=<n>` if the flag is not provided.
 
 Example:
 
@@ -105,6 +109,11 @@ Example:
 pnpm run cli:run -- --index-only
 pnpm run cli:run -- --no-ai
 pnpm run cli:run -- --window-hours 6
+pnpm run cli:run -- --watch --interval-minutes 10
+# Convenience script:
+pnpm run cli:watch
+# Or with env fallback for interval:
+RUN_INTERVAL_MINUTES=15 pnpm run cli:watch
 ```
 
 ### AI summarization (optional)
@@ -172,9 +181,9 @@ Optional:
 - Missing envs (init fails with a clear message)
   - Set `GHPAGES_OWNER`, `GHPAGES_REPO`, and `GHPAGES_TOKEN` (or `GITHUB_TOKEN`) when `PUBLISHER=gh-pages`.
 
-### Example workflow (scheduled and manual)
+### Example workflow (manual-only)
 
-See `.github/workflows/publish.yml` for a complete example. It runs the CLI on a schedule and uses `PUBLISHER=gh-pages` to push updates directly to the `gh-pages` branch.
+See `.github/workflows/publish.yml` for a complete example. It runs when manually dispatched in the GitHub Actions UI (no cron schedule) and uses `PUBLISHER=gh-pages` to push updates directly to the `gh-pages` branch.
 
 ## CI
 

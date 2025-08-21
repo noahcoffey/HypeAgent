@@ -11,7 +11,8 @@
     "format:check": "prettier -c .",
     "test": "pnpm -r test",
     "cli:build": "pnpm -r build",
-    "cli:run": "node apps/cli/dist/index.js"
+    "cli:run": "node apps/cli/dist/index.js",
+    "cli:watch": "node apps/cli/dist/index.js --watch"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
