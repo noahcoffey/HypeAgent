@@ -1,5 +1,5 @@
 {
-  "lastRunAt": "2025-08-21T00:30:37.442Z",
+  "lastRunAt": "2025-08-21T01:29:16.571Z",
   "facts": [
     {
       "id": "gh-commit-46437847cd026f756e5473bd1380f40c9db2b173",
@@ -940,6 +940,36 @@
       }
     },
     {
+      "id": "gh-3331555095",
+      "kind": "pr_updated",
+      "summary": "PR #56: feat: add lead type categorization with UI and database support [closed]",
+      "occurredAt": "2025-08-18T17:35:10Z",
+      "source": "github",
+      "url": "https://github.com/noahcoffey/bizd/pull/56",
+      "data": {
+        "number": 56,
+        "title": "feat: add lead type categorization with UI and database support",
+        "state": "closed",
+        "isPR": true,
+        "repo": "noahcoffey/bizd"
+      }
+    },
+    {
+      "id": "gh-3328659480",
+      "kind": "pr_updated",
+      "summary": "PR #55: feat: add lead type categorization with UI and database support [closed]",
+      "occurredAt": "2025-08-18T17:35:41Z",
+      "source": "github",
+      "url": "https://github.com/noahcoffey/bizd/pull/55",
+      "data": {
+        "number": 55,
+        "title": "feat: add lead type categorization with UI and database support",
+        "state": "closed",
+        "isPR": true,
+        "repo": "noahcoffey/bizd"
+      }
+    },
+    {
       "id": "gh-commit-957e71e4efd8c6b2259fab93a5fca67570e27fdc",
       "kind": "commit",
       "summary": "Commit 957e71e: feat: improve name handling and search functionality for leads with fallback to name field",
@@ -964,6 +994,201 @@
         "sha": "cb154e76801e94cd0e17823615a6bb21513f2173",
         "message": "Merge pull request #57 from noahcoffey/agent-1",
         "author": "Noah Coffey",
+        "repo": "noahcoffey/bizd"
+      }
+    },
+    {
+      "id": "gh-3331679899",
+      "kind": "pr_updated",
+      "summary": "PR #57: feat: improve name handling and search functionality for leads with f… [closed]",
+      "occurredAt": "2025-08-18T18:23:41Z",
+      "source": "github",
+      "url": "https://github.com/noahcoffey/bizd/pull/57",
+      "data": {
+        "number": 57,
+        "title": "feat: improve name handling and search functionality for leads with f…",
+        "state": "closed",
+        "isPR": true,
+        "repo": "noahcoffey/bizd"
+      }
+    },
+    {
+      "id": "gh-3254146209",
+      "kind": "issue_updated",
+      "summary": "Issue #8: PROF-002: Create profile_values table linking leads to field values with relevance scores [closed]",
+      "occurredAt": "2025-08-18T18:35:20Z",
+      "source": "github",
+      "url": "https://github.com/noahcoffey/bizd/issues/8",
+      "data": {
+        "number": 8,
+        "title": "PROF-002: Create profile_values table linking leads to field values with relevance scores",
+        "state": "closed",
+        "isPR": false,
+        "repo": "noahcoffey/bizd"
+      }
+    },
+    {
+      "id": "gh-3254146309",
+      "kind": "issue_updated",
+      "summary": "Issue #11: PROF-005: Add relevance score input (1-100 slider) for each profile field value [closed]",
+      "occurredAt": "2025-08-18T18:35:21Z",
+      "source": "github",
+      "url": "https://github.com/noahcoffey/bizd/issues/11",
+      "data": {
+        "number": 11,
+        "title": "PROF-005: Add relevance score input (1-100 slider) for each profile field value",
+        "state": "closed",
+        "isPR": false,
+        "repo": "noahcoffey/bizd"
+      }
+    },
+    {
+      "id": "gh-3254146268",
+      "kind": "issue_updated",
+      "summary": "Issue #10: PROF-004: Create dynamic profile editing form that renders based on active fields [closed]",
+      "occurredAt": "2025-08-18T18:35:21Z",
+      "source": "github",
+      "url": "https://github.com/noahcoffey/bizd/issues/10",
+      "data": {
+        "number": 10,
+        "title": "PROF-004: Create dynamic profile editing form that renders based on active fields",
+        "state": "closed",
+        "isPR": false,
+        "repo": "noahcoffey/bizd"
+      }
+    },
+    {
+      "id": "gh-3254147015",
+      "kind": "issue_updated",
+      "summary": "Issue #17: CRM-002: Create lead model with CRUD operations and validation [closed]",
+      "occurredAt": "2025-08-18T18:35:22Z",
+      "source": "github",
+      "url": "https://github.com/noahcoffey/bizd/issues/17",
+      "data": {
+        "number": 17,
+        "title": "CRM-002: Create lead model with CRUD operations and validation",
+        "state": "closed",
+        "isPR": false,
+        "repo": "noahcoffey/bizd"
+      }
+    },
+    {
+      "id": "gh-3254146374",
+      "kind": "issue_updated",
+      "summary": "Issue #13: PROF-007: Add field type validation (text, number, date, dropdown, etc.) [closed]",
+      "occurredAt": "2025-08-18T18:35:22Z",
+      "source": "github",
+      "url": "https://github.com/noahcoffey/bizd/issues/13",
+      "data": {
+        "number": 13,
+        "title": "PROF-007: Add field type validation (text, number, date, dropdown, etc.)",
+        "state": "closed",
+        "isPR": false,
+        "repo": "noahcoffey/bizd"
+      }
+    },
+    {
+      "id": "gh-3254146340",
+      "kind": "issue_updated",
+      "summary": "Issue #12: PROF-006: Display profile data on lead detail page with relevance scores [closed]",
+      "occurredAt": "2025-08-18T18:35:22Z",
+      "source": "github",
+      "url": "https://github.com/noahcoffey/bizd/issues/12",
+      "data": {
+        "number": 12,
+        "title": "PROF-006: Display profile data on lead detail page with relevance scores",
+        "state": "closed",
+        "isPR": false,
+        "repo": "noahcoffey/bizd"
+      }
+    },
+    {
+      "id": "gh-3254147111",
+      "kind": "issue_updated",
+      "summary": "Issue #20: CRM-005: Build individual lead detail view page [closed]",
+      "occurredAt": "2025-08-18T18:35:23Z",
+      "source": "github",
+      "url": "https://github.com/noahcoffey/bizd/issues/20",
+      "data": {
+        "number": 20,
+        "title": "CRM-005: Build individual lead detail view page",
+        "state": "closed",
+        "isPR": false,
+        "repo": "noahcoffey/bizd"
+      }
+    },
+    {
+      "id": "gh-3254147076",
+      "kind": "issue_updated",
+      "summary": "Issue #19: CRM-004: Create 'Add New Lead' form with basic validation [closed]",
+      "occurredAt": "2025-08-18T18:35:23Z",
+      "source": "github",
+      "url": "https://github.com/noahcoffey/bizd/issues/19",
+      "data": {
+        "number": 19,
+        "title": "CRM-004: Create 'Add New Lead' form with basic validation",
+        "state": "closed",
+        "isPR": false,
+        "repo": "noahcoffey/bizd"
+      }
+    },
+    {
+      "id": "gh-3254147043",
+      "kind": "issue_updated",
+      "summary": "Issue #18: CRM-003: Build simple lead listing page with pagination [closed]",
+      "occurredAt": "2025-08-18T18:35:23Z",
+      "source": "github",
+      "url": "https://github.com/noahcoffey/bizd/issues/18",
+      "data": {
+        "number": 18,
+        "title": "CRM-003: Build simple lead listing page with pagination",
+        "state": "closed",
+        "isPR": false,
+        "repo": "noahcoffey/bizd"
+      }
+    },
+    {
+      "id": "gh-3254147585",
+      "kind": "issue_updated",
+      "summary": "Issue #27: CRM-004: Create 'Add New Lead' form with basic validation [closed]",
+      "occurredAt": "2025-08-18T18:35:24Z",
+      "source": "github",
+      "url": "https://github.com/noahcoffey/bizd/issues/27",
+      "data": {
+        "number": 27,
+        "title": "CRM-004: Create 'Add New Lead' form with basic validation",
+        "state": "closed",
+        "isPR": false,
+        "repo": "noahcoffey/bizd"
+      }
+    },
+    {
+      "id": "gh-3254147222",
+      "kind": "issue_updated",
+      "summary": "Issue #23: PROF-002: Create profile_values table linking leads to field values with relevance scores [closed]",
+      "occurredAt": "2025-08-18T18:35:24Z",
+      "source": "github",
+      "url": "https://github.com/noahcoffey/bizd/issues/23",
+      "data": {
+        "number": 23,
+        "title": "PROF-002: Create profile_values table linking leads to field values with relevance scores",
+        "state": "closed",
+        "isPR": false,
+        "repo": "noahcoffey/bizd"
+      }
+    },
+    {
+      "id": "gh-3254146166",
+      "kind": "issue_updated",
+      "summary": "Issue #7: PROF-001: Design and implement profile_fields table [closed]",
+      "occurredAt": "2025-08-18T18:35:38Z",
+      "source": "github",
+      "url": "https://github.com/noahcoffey/bizd/issues/7",
+      "data": {
+        "number": 7,
+        "title": "PROF-001: Design and implement profile_fields table",
+        "state": "closed",
+        "isPR": false,
         "repo": "noahcoffey/bizd"
       }
     },
@@ -1006,6 +1231,21 @@
         "sha": "2a3a2ad560eb7522081431000298a36effaee7e8",
         "message": "Merge pull request #58 from noahcoffey/agent-1",
         "author": "Noah Coffey",
+        "repo": "noahcoffey/bizd"
+      }
+    },
+    {
+      "id": "gh-3331827128",
+      "kind": "pr_updated",
+      "summary": "PR #58: feat: migrate from SQLite to MySQL 8 with SSL support [closed]",
+      "occurredAt": "2025-08-18T19:22:10Z",
+      "source": "github",
+      "url": "https://github.com/noahcoffey/bizd/pull/58",
+      "data": {
+        "number": 58,
+        "title": "feat: migrate from SQLite to MySQL 8 with SSL support",
+        "state": "closed",
+        "isPR": true,
         "repo": "noahcoffey/bizd"
       }
     },
@@ -1062,6 +1302,126 @@
         "sha": "37a2f5443366263b164a71a93c9467979a867ba3",
         "message": "Merge pull request #59 from noahcoffey/agent-1",
         "author": "Noah Coffey",
+        "repo": "noahcoffey/bizd"
+      }
+    },
+    {
+      "id": "gh-3331920317",
+      "kind": "pr_updated",
+      "summary": "PR #59: Lead Detail UI Updates [closed]",
+      "occurredAt": "2025-08-18T20:03:25Z",
+      "source": "github",
+      "url": "https://github.com/noahcoffey/bizd/pull/59",
+      "data": {
+        "number": 59,
+        "title": "Lead Detail UI Updates",
+        "state": "closed",
+        "isPR": true,
+        "repo": "noahcoffey/bizd"
+      }
+    },
+    {
+      "id": "gh-3331999453",
+      "kind": "issue_updated",
+      "summary": "Issue #67: Invite users to company (admin/owner) [open]",
+      "occurredAt": "2025-08-18T20:27:37Z",
+      "source": "github",
+      "url": "https://github.com/noahcoffey/bizd/issues/67",
+      "data": {
+        "number": 67,
+        "title": "Invite users to company (admin/owner)",
+        "state": "open",
+        "isPR": false,
+        "repo": "noahcoffey/bizd"
+      }
+    },
+    {
+      "id": "gh-3331999702",
+      "kind": "issue_updated",
+      "summary": "Issue #70: Backend: Search endpoints scoping [open]",
+      "occurredAt": "2025-08-18T20:27:38Z",
+      "source": "github",
+      "url": "https://github.com/noahcoffey/bizd/issues/70",
+      "data": {
+        "number": 70,
+        "title": "Backend: Search endpoints scoping",
+        "state": "open",
+        "isPR": false,
+        "repo": "noahcoffey/bizd"
+      }
+    },
+    {
+      "id": "gh-3332000213",
+      "kind": "issue_updated",
+      "summary": "Issue #75: Frontend: Invitations flow [open]",
+      "occurredAt": "2025-08-18T20:27:39Z",
+      "source": "github",
+      "url": "https://github.com/noahcoffey/bizd/issues/75",
+      "data": {
+        "number": 75,
+        "title": "Frontend: Invitations flow",
+        "state": "open",
+        "isPR": false,
+        "repo": "noahcoffey/bizd"
+      }
+    },
+    {
+      "id": "gh-3332000637",
+      "kind": "issue_updated",
+      "summary": "Issue #79: Migration: existing data to Default Company [open]",
+      "occurredAt": "2025-08-18T20:27:40Z",
+      "source": "github",
+      "url": "https://github.com/noahcoffey/bizd/issues/79",
+      "data": {
+        "number": 79,
+        "title": "Migration: existing data to Default Company",
+        "state": "open",
+        "isPR": false,
+        "repo": "noahcoffey/bizd"
+      }
+    },
+    {
+      "id": "gh-3332001222",
+      "kind": "issue_updated",
+      "summary": "Issue #82: Security: rate limiting and audit logging [open]",
+      "occurredAt": "2025-08-18T20:27:41Z",
+      "source": "github",
+      "url": "https://github.com/noahcoffey/bizd/issues/82",
+      "data": {
+        "number": 82,
+        "title": "Security: rate limiting and audit logging",
+        "state": "open",
+        "isPR": false,
+        "repo": "noahcoffey/bizd"
+      }
+    },
+    {
+      "id": "gh-3332001111",
+      "kind": "issue_updated",
+      "summary": "Issue #81: Docs: multi-tenant concepts and env setup [open]",
+      "occurredAt": "2025-08-18T20:27:41Z",
+      "source": "github",
+      "url": "https://github.com/noahcoffey/bizd/issues/81",
+      "data": {
+        "number": 81,
+        "title": "Docs: multi-tenant concepts and env setup",
+        "state": "open",
+        "isPR": false,
+        "repo": "noahcoffey/bizd"
+      }
+    },
+    {
+      "id": "gh-3332001314",
+      "kind": "issue_updated",
+      "summary": "Issue #83: Optional: Admin company members management UI [open]",
+      "occurredAt": "2025-08-18T20:27:42Z",
+      "source": "github",
+      "url": "https://github.com/noahcoffey/bizd/issues/83",
+      "data": {
+        "number": 83,
+        "title": "Optional: Admin company members management UI",
+        "state": "open",
+        "isPR": false,
         "repo": "noahcoffey/bizd"
       }
     },

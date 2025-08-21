@@ -47,6 +47,7 @@ Core reads environment via `loadEnvConfig()` with validation, and the CLI reads 
 - `PUBLISH_OUT_DIR` (optional) — output directory for filesystem publisher (default: `updates/`)
 - `PUBLISH_BASE_URL` (optional) — base URL used to return a public URL to the published file
 - `PUBLISH_ONLY_SUMMARY` (optional) — when `true`, skip publishing the full update and only publish the AI-generated summary (also implies `PUBLISH_AI_SUMMARY=true` unless explicitly overridden)
+- `WINDOW_HOURS` (optional) — default time window (in hours) used to group new facts into a single update when the CLI flag `--window-hours` is not provided (default: `12`)
 - `GITHUB_TOKEN` (optional) — token for GitHub API calls (required if using the GitHub connector)
 - GitHub Pages publisher env (when `PUBLISHER=gh-pages`):
   - `GHPAGES_OWNER` — repo owner (user or org)
@@ -96,6 +97,7 @@ By default, state persists to `.hypeagent/state.json` and the selected publisher
 - `--index-only` — with `PUBLISHER=gh-pages`, refresh the Jekyll scaffold and exit (no content publish).
 - `--no-ai` — skip AI summary generation regardless of env.
 - `--window-hours <n>` or `--window-hours=<n>` — group new facts into windows of N hours (default: `12`). Each group becomes its own update post.
+  - Env fallback: set `WINDOW_HOURS=<n>` to avoid passing a flag (e.g., in CI).
 
 Example:
 

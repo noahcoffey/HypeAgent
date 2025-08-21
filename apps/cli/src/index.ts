@@ -108,22 +108,31 @@ async function main() {
   const newFacts = (res.state.facts ?? [])
     .filter((f) => !prevIds.has(f.id))
     .sort((a, b) => a.occurredAt.localeCompare(b.occurredAt))
-  const windowHours = windowHoursFlag && windowHoursFlag > 0 ? windowHoursFlag : 12
+  // Allow env to set default window if flag not provided
+  const envWindow = Number(process.env.WINDOW_HOURS || '')
+  const windowHours = windowHoursFlag && windowHoursFlag > 0 ? windowHoursFlag : Number.isFinite(envWindow) && envWindow > 0 ? envWindow : 12
   const windowMs = windowHours * 60 * 60 * 1000
 
-  const groups: Fact[][] = []
-  for (const f of newFacts) {
+  // Use an effective timestamp for grouping that treats newly discovered commits
+  // (with old commit dates) as occurring "now" for grouping purposes.
+  type GroupItem = { f: Fact; t: string }
+  const items: GroupItem[] = newFacts
+    .map((f) => ({ f, t: f.occurredAt < since ? nowIso : f.occurredAt }))
+    .sort((a, b) => a.t.localeCompare(b.t))
+
+  const groups: GroupItem[][] = []
+  for (const it of items) {
     if (!groups.length) {
-      groups.push([f])
+      groups.push([it])
       continue
     }
     const current = groups[groups.length - 1]
-    const firstIso = current[0].occurredAt
-    const span = new Date(f.occurredAt).getTime() - new Date(firstIso).getTime()
+    const firstIso = current[0].t
+    const span = new Date(it.t).getTime() - new Date(firstIso).getTime()
     if (span <= windowMs) {
-      current.push(f)
+      current.push(it)
     } else {
-      groups.push([f])
+      groups.push([it])
     }
   }
 
@@ -147,15 +156,15 @@ async function main() {
   const aiSummaryPublishedItems: { id: string; url?: string }[] = []
 
   for (let i = 0; i < groups.length; i++) {
-    const facts = groups[i]
+    const facts = groups[i].map((g) => g.f)
     if (!facts.length) continue
 
     // Make a unique timestamp for this draft id by offsetting milliseconds
     const draftNowIso = new Date(baseNow + i).toISOString()
 
     // Optional: title with window range
-    const startIso = facts[0].occurredAt
-    const endIso = facts[facts.length - 1].occurredAt
+    const startIso = groups[i][0].t
+    const endIso = groups[i][groups[i].length - 1].t
     const fmt = (iso: string) => iso.replace('T', ' ').slice(0, 16) + ' UTC'
     const title = `HypeAgent Update (${fmt(startIso)} – ${fmt(endIso)})`
 
