@@ -1,13 +1,17 @@
 ---
-title: Updates
+title: Project Updates
 layout: null
 ---
 
 <style>
-  :root { --fg:#0b1320; --muted:#5b667a; --bg:#f7fafc; --card:#ffffff; --accent:#2f73ff; }
+  :root { --fg:#0b1320; --muted:#5b667a; --bg:#f7fafc; --card:#ffffff; --accent:#2f73ff; --accent2:#6aa1ff; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--fg); margin: 0; }
-  .wrap { max-width: 780px; margin: 32px auto; padding: 0 16px; }
-  h1 { font-size: 28px; margin: 0 0 16px; }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 0 16px; }
+  .hero { background: linear-gradient(135deg, rgba(47,115,255,0.08), rgba(47,115,255,0.02)); border-bottom: 1px solid #e7ecf3; }
+  .hero-inner { padding: 40px 0 28px; }
+  .hero h1 { font-size: 28px; margin: 0 0 4px; }
+  .hero p.sub { color: var(--muted); margin: 0; }
+  .list { padding: 24px 0 48px; }
   .post { background: var(--card); border: 1px solid #e7ecf3; border-radius: 12px; padding: 20px 20px; margin: 16px 0; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
   .post h2 { font-size: 20px; margin: 0 0 8px; }
   .post h2 a { color: inherit; text-decoration: none; }
@@ -15,8 +19,13 @@ layout: null
   hr.sep { border: none; border-top: 1px solid #eef2f7; margin: 16px 0 0; }
 </style>
 
-<div class="wrap">
-  <h1>Latest Updates</h1>
+<div class="hero">
+  <div class="wrap hero-inner">
+    <h1>Project Updates</h1>
+    <p class="sub">What shipped recently</p>
+  </div>
+</div>
+<div class="wrap list">
   {% assign summary = site.updates | where: "ha_kind", "summary" | sort: 'date' | reverse %}
   {% assign items = summary %}
   {% if summary.size == 0 %}
@@ -55,7 +64,7 @@ layout: null
       <h2><a href="{{ post.url | relative_url }}">{{ display_title }}</a></h2>
       {% if body_only contains '<' %}{{ body_only }}{% else %}{{ body_only | markdownify }}{% endif %}
       <hr class="sep" />
-      <p class="meta"><a href="{{ post.url | relative_url }}">Permalink</a></p>
+      {% if post.ha_kind != 'summary' %}<p class="meta"><a href="{{ post.url | relative_url }}">Permalink</a></p>{% endif %}
     </div>
   {% endfor %}
   <script>
