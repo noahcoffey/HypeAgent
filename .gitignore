@@ -16,3 +16,6 @@ dist/
 
 # Generated updates
 updates/
+
+# Local agent state (created at runtime)
+.hypeagent/
