@@ -118,17 +118,15 @@ export class GitHubConnector implements Connector<GitHubConnectorConfig> {
       // Fetch commits since (paginated), optionally filter to branch
       const repoEntry = this.repos.find((r) => r.owner === owner && r.repo === repo)
       const sha = repoEntry?.branch
-      const commits = await this.withRetry(() =>
-        this.octokit!.paginate(this.octokit!.repos.listCommits, {
-          owner,
-          repo,
-          since: sinceIso,
-          per_page: 100,
-          ...(sha ? { sha } : {}),
-        })
+      // Fetch latest commits without 'since' to avoid missing older-dated commits that were pushed now.
+      // We fetch only the most recent page (per_page: 100) and dedupe by id at a higher level.
+      const commitsResp = await this.withRetry(() =>
+        this.octokit!.repos.listCommits({ owner, repo, per_page: 100, ...(sha ? { sha } : {}) })
       )
+      const commits = commitsResp.data
       for (const c of commits) {
-        const occurredAt = c.commit.author?.date ?? c.commit.committer?.date ?? sinceIso
+        // Prefer committer date (closer to push/merge time), fallback to author date
+        const occurredAt = c.commit.committer?.date ?? c.commit.author?.date ?? sinceIso
         out.push({
           id: `gh-commit-${c.sha}`,
           source: 'github',

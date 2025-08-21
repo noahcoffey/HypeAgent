@@ -92,7 +92,7 @@ async function main() {
     connectors.push(gh)
   }
 
-  // Determine since based on previous state to compute "new facts" for this run
+  // Determine since and capture previous facts for new-facts diffing
   const prev: ProjectState = (await storage.readState()) ?? { facts: [] as Fact[], lastRunAt: undefined }
   const since = prev.lastRunAt ?? '1970-01-01T00:00:00.000Z'
 
@@ -102,7 +102,12 @@ async function main() {
   // Group new facts into windows (default 12 hours) and publish one update per group
   const baseNow = Date.now()
   const nowIso = new Date(baseNow).toISOString()
-  const newFacts = (res.state.facts ?? []).filter((f) => f.occurredAt >= since)
+  // New facts are those not present by id in the previous state. This avoids
+  // missing commits that were authored earlier but pushed after the last run.
+  const prevIds = new Set((prev.facts ?? []).map((f) => f.id))
+  const newFacts = (res.state.facts ?? [])
+    .filter((f) => !prevIds.has(f.id))
+    .sort((a, b) => a.occurredAt.localeCompare(b.occurredAt))
   const windowHours = windowHoursFlag && windowHoursFlag > 0 ? windowHoursFlag : 12
   const windowMs = windowHours * 60 * 60 * 1000
 
