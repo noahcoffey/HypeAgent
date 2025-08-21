@@ -8,6 +8,9 @@ export interface GhPagesPublisherConfig {
   branch?: string // default: gh-pages
   dir?: string // default: updates
   baseUrl?: string // optional override for public URL (else derive)
+  // Optional site header controls
+  siteTitle?: string
+  siteSubtitle?: string
 }
 
 export class GitHubPagesPublisher implements Publisher<GhPagesPublisherConfig> {
@@ -17,6 +20,8 @@ export class GitHubPagesPublisher implements Publisher<GhPagesPublisherConfig> {
   private branch: string = 'gh-pages'
   private dir: string = 'updates'
   private baseUrl?: string
+  private siteTitle?: string
+  private siteSubtitle?: string
 
   async init(config: GhPagesPublisherConfig): Promise<void> {
     // Basic validation for clear, actionable errors
@@ -41,6 +46,8 @@ export class GitHubPagesPublisher implements Publisher<GhPagesPublisherConfig> {
     // Normalize dir: remove any leading '_' or '/'
     this.dir = (config.dir || 'updates').replace(/^[_/]+/, '')
     this.baseUrl = config.baseUrl
+    this.siteTitle = config.siteTitle
+    this.siteSubtitle = config.siteSubtitle
 
     await this.ensureBranchExists()
     await this.ensureJekyllScaffold()
@@ -150,7 +157,7 @@ export class GitHubPagesPublisher implements Publisher<GhPagesPublisherConfig> {
     // _config.yml
     await this.ensureFile(
       '_config.yml',
-      `title: HypeAgent Updates\n` +
+      `title: ${this.siteTitle || 'HypeAgent Updates'}\n` +
         `theme: jekyll-theme-cayman\n` +
         `collections:\n  updates:\n    output: true\n` +
         `markdown: kramdown\n`,
@@ -158,22 +165,31 @@ export class GitHubPagesPublisher implements Publisher<GhPagesPublisherConfig> {
 
     // index.md renders only summary posts, with basic styling, newest first
     const indexMd = `---\n` +
-      `title: Updates\n` +
+      `title: ${this.siteTitle || 'Updates'}\n` +
       `layout: null\n` +
       `---\n\n` +
       `<style>\n` +
-      `  :root { --fg:#0b1320; --muted:#5b667a; --bg:#f7fafc; --card:#ffffff; --accent:#2f73ff; }\n` +
+      `  :root { --fg:#0b1320; --muted:#5b667a; --bg:#f7fafc; --card:#ffffff; --accent:#2f73ff; --accent2:#6aa1ff; }\n` +
       `  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--fg); margin: 0; }\n` +
-      `  .wrap { max-width: 780px; margin: 32px auto; padding: 0 16px; }\n` +
-      `  h1 { font-size: 28px; margin: 0 0 16px; }\n` +
+      `  .wrap { max-width: 860px; margin: 0 auto; padding: 0 16px; }\n` +
+      `  .hero { background: linear-gradient(135deg, rgba(47,115,255,0.08), rgba(47,115,255,0.02)); border-bottom: 1px solid #e7ecf3; }\n` +
+      `  .hero-inner { padding: 40px 0 28px; }\n` +
+      `  .hero h1 { font-size: 28px; margin: 0 0 4px; }\n` +
+      `  .hero p.sub { color: var(--muted); margin: 0; }\n` +
+      `  .list { padding: 24px 0 48px; }\n` +
       `  .post { background: var(--card); border: 1px solid #e7ecf3; border-radius: 12px; padding: 20px 20px; margin: 16px 0; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }\n` +
       `  .post h2 { font-size: 20px; margin: 0 0 8px; }\n` +
       `  .post h2 a { color: inherit; text-decoration: none; }\n` +
       `  .meta { color: var(--muted); font-size: 13px; margin: 0 0 12px; }\n` +
       `  hr.sep { border: none; border-top: 1px solid #eef2f7; margin: 16px 0 0; }\n` +
       `</style>\n\n` +
-      `<div class="wrap">\n` +
-      `  <h1>Latest Updates</h1>\n` +
+      `<div class=\"hero\">\n` +
+      `  <div class=\"wrap hero-inner\">\n` +
+      `    <h1>${this.siteTitle || 'Updates'}</h1>\n` +
+      `    ${this.siteSubtitle ? `<p class=\"sub\">${this.siteSubtitle}</p>` : ''}\n` +
+      `  </div>\n` +
+      `</div>\n` +
+      `<div class=\"wrap list\">\n` +
       `  {% assign summary = site.updates | where: "ha_kind", "summary" | sort: 'date' | reverse %}\n` +
       `  {% assign items = summary %}\n` +
       `  {% if summary.size == 0 %}\n` +
@@ -210,7 +226,7 @@ export class GitHubPagesPublisher implements Publisher<GhPagesPublisherConfig> {
       `      <h2><a href="{{ post.url | relative_url }}">{{ display_title }}</a></h2>\n` +
       `      {% if body_only contains '<' %}{{ body_only }}{% else %}{{ body_only | markdownify }}{% endif %}\n` +
       `      <hr class="sep" />\n` +
-      `      <p class="meta"><a href="{{ post.url | relative_url }}">Permalink</a></p>\n` +
+      `      {% if post.ha_kind != 'summary' %}<p class="meta"><a href="{{ post.url | relative_url }}">Permalink</a></p>{% endif %}\n` +
       `    </div>\n` +
       `  {% endfor %}\n` +
       `  <script>\n` +

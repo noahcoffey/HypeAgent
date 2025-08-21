@@ -53,7 +53,7 @@ async function main() {
     }
     const ghp = new GitHubPagesPublisher()
     try {
-      await ghp.init({ token: ghToken, owner: ghOwner, repo: ghRepo, branch: ghBranch, dir: ghRepoDir, baseUrl })
+      await ghp.init({ token: ghToken, owner: ghOwner, repo: ghRepo, branch: ghBranch, dir: ghRepoDir, baseUrl, siteTitle: process.env.SITE_TITLE, siteSubtitle: process.env.SITE_SUBTITLE })
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
       console.error(
