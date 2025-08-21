@@ -291,7 +291,6 @@ async function main() {
     const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
     console.log(`Watch mode enabled. Re-running every ${effectiveMinutes} minute(s). Press Ctrl+C to exit.`)
     // Loop forever until process is terminated
-    // eslint-disable-next-line no-constant-condition
     while (true) {
       await sleep(intervalMs)
       await runCycle()

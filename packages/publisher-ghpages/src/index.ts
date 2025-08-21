@@ -183,13 +183,13 @@ export class GitHubPagesPublisher implements Publisher<GhPagesPublisherConfig> {
       `  .meta { color: var(--muted); font-size: 13px; margin: 0 0 12px; }\n` +
       `  hr.sep { border: none; border-top: 1px solid #eef2f7; margin: 16px 0 0; }\n` +
       `</style>\n\n` +
-      `<div class=\"hero\">\n` +
-      `  <div class=\"wrap hero-inner\">\n` +
+      `<div class="hero">\n` +
+      `  <div class="wrap hero-inner">\n` +
       `    <h1>${this.siteTitle || 'Updates'}</h1>\n` +
-      `    ${this.siteSubtitle ? `<p class=\"sub\">${this.siteSubtitle}</p>` : ''}\n` +
+      `    ${this.siteSubtitle ? `<p class="sub">${this.siteSubtitle}</p>` : ''}\n` +
       `  </div>\n` +
       `</div>\n` +
-      `<div class=\"wrap list\">\n` +
+      `<div class="wrap list">\n` +
       `  {% assign summary = site.updates | where: "ha_kind", "summary" | sort: 'date' | reverse %}\n` +
       `  {% assign items = summary %}\n` +
       `  {% if summary.size == 0 %}\n` +
