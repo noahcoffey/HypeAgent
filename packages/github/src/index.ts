@@ -73,7 +73,8 @@ export class GitHubConnector implements Connector<GitHubConnectorConfig> {
     this.repos = config.repos.reduce<Array<{ owner: string; repo: string; branch?: string }>>((acc, raw) => {
       const r = raw.trim()
       if (!r) return acc
-      const [repoPart, branch] = r.split('@')
+      const [repoPart, ...branchParts] = r.split('@')
+      const branch = branchParts.length ? branchParts.join('@') : undefined
       const [owner, repo] = repoPart.split('/')
       if (!owner || !repo) return acc
       acc.push({ owner, repo, ...(branch ? { branch } : {}) })
@@ -84,7 +85,7 @@ export class GitHubConnector implements Connector<GitHubConnectorConfig> {
   async pullSince(sinceIso: ISODateTime): Promise<Event[]> {
     if (!this.octokit) throw new Error('GitHubConnector not initialized')
     const out: Event[] = []
-    for (const { owner, repo } of this.repos) {
+    for (const { owner, repo, branch } of this.repos) {
       // Fetch issues and PRs updated since (paginated)
       const issues = await this.withRetry(() =>
         this.octokit!.paginate(this.octokit!.issues.listForRepo, {
@@ -116,8 +117,7 @@ export class GitHubConnector implements Connector<GitHubConnectorConfig> {
       }
 
       // Fetch commits since (paginated), optionally filter to branch
-      const repoEntry = this.repos.find((r) => r.owner === owner && r.repo === repo)
-      const sha = repoEntry?.branch
+      const sha = branch
       // Fetch latest commits without 'since' to avoid missing older-dated commits that were pushed now.
       // We fetch only the most recent page (per_page: 100) and dedupe by id at a higher level.
       const commitsResp = await this.withRetry(() =>
